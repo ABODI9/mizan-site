@@ -70,3 +70,4 @@ Based on the privacy policy as written:
 ## Privacy stance of the site itself
 
 No analytics, no cookies, no consent banner, no third-party requests at all. The only browser storage is localStorage for two preferences (`mizan-lang`, `mizan-theme`), which is not tracking and needs no banner under ePrivacy/GDPR.
+# mizan-site
