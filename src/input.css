@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens. Light is the bare :root; .dark on <html> (the default in the markup) swaps them. */
+:root {
+  --c-bg: 248 250 252;        /* #F8FAFC */
+  --c-surface: 255 255 255;
+  --c-line: 226 232 240;      /* #E2E8F0 */
+  --c-fg: 15 23 42;           /* #0F172A */
+  --c-muted: 75 85 99;        /* #4B5563 */
+  --c-primary: 37 99 235;     /* #2563EB */
+  --c-primary-strong: 37 99 235;
+  --c-primary-hover: 29 78 216;
+  --c-accent: 15 118 110;     /* #0F766E teal-700, AA on light */
+  color-scheme: light;
+}
+.dark {
+  --c-bg: 15 23 42;           /* #0F172A */
+  --c-surface: 21 27 38;      /* #151B26 */
+  --c-line: 38 50 68;         /* #263244 */
+  --c-fg: 249 250 251;        /* #F9FAFB */
+  --c-muted: 156 163 175;     /* #9CA3AF */
+  --c-primary: 59 130 246;    /* #3B82F6 */
+  --c-primary-strong: 37 99 235; /* #2563EB: white text passes AA */
+  --c-primary-hover: 29 78 216;
+  --c-accent: 20 184 166;     /* #14B8A6 */
+  color-scheme: dark;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { font-family: theme(fontFamily.sans); }
+  /* Arabic needs a touch more line height and no letter-spacing tricks */
+  [lang="ar"] body, [lang="ar"] { letter-spacing: 0; }
+  [lang="ar"] p, [lang="ar"] li { line-height: 1.85; }
+  [lang="ar"] .tracking-tight { letter-spacing: 0; }
+  :focus-visible { outline: 2px solid rgb(var(--c-accent)); outline-offset: 3px; border-radius: 0.25rem; }
+  ::selection { background: rgb(var(--c-primary) / 0.35); }
+  summary { -webkit-tap-highlight-color: transparent; }
+}
+
+@layer components {
+  /* Progressive enhancement: these rules only apply once JS has added .js to <html> */
+  .js-only { display: none; }
+  .js .js-only { display: inline-flex; }
+  .js .nojs-only { display: none; }
+  .y-only { display: none; }
+  .js [data-billing="yearly"] .y-only { display: block; }
+  .js [data-billing="yearly"] .m-only { display: none; }
+  .doc ul, .doc ol { margin-top: 0.5rem; }
+}
