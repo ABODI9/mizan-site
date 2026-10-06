@@ -1,19 +1,33 @@
 # Mizan marketing site
 
-Static site, three languages (`/ar/` default, `/en/`, `/tr/`), no framework, no backend, no build step to deploy.
+Static site, three languages (`/en/` default, `/ar/`, `/tr/`), no framework, no build step to deploy.
+Accounts and card subscriptions are handled by the existing backend at `https://api.mizan-ai.org`;
+the site is still static files, it just calls that API from the browser.
 
 ```
 site/          ← deploy this folder as-is (the web root)
-  index.html   root: redirects to the visitor's saved language, else /ar/
-  ar/ en/ tr/  each has: index, pricing/, privacy/, terms/, delete-account/, support/
-  assets/      styles.css (precompiled Tailwind, 20 KB), site.js (1.7 KB), og.png
+  index.html   root: redirects to the visitor's saved language, else /en/
+  ar/ en/ tr/  each has: index (the whole marketing site on ONE page: download, pricing,
+               features, AI coach, languages, privacy summary, support/FAQ), privacy/,
+               terms/, delete-account/, login/, signup/, account/, billing/success/,
+               billing/cancel/. pricing/ and support/ are one-line redirect stubs to
+               /[lang]/#pricing and /#support (old links keep working; ?_ptxn= is carried).
+  app/billing/activated.html    the web -> app handoff landing page (no language prefix)
+  assets/      styles.css (precompiled Tailwind, 23 KB), site.js (24 KB), og.png
+  .well-known/assetlinks.json              Android App Links (needs two fingerprints)
+  .well-known/apple-app-site-association   iOS Universal Links (needs the Team ID)
+  .well-known/aasa.json                    same bytes, .json so Netlify types it right
   favicon.svg, favicon.ico, apple-touch-icon.png, sitemap.xml, robots.txt, 404.html
-  _headers     security + cache headers (Cloudflare Pages, Netlify)
+  _headers     security + cache headers (Netlify, Cloudflare Pages)
   vercel.json  same headers for Vercel
-src/           generator + translations (only needed if you change copy or classes)
+src/           generator, translations and site.js (only needed to change the site)
 ```
 
-Page weight: home ≈ 32 KB HTML + 20 KB CSS + 2 KB JS, one request each, no fonts, no external hosts. All text renders with JavaScript off; JS only adds the theme toggle, the monthly/yearly toggle and language persistence.
+Page weight: home ≈ 58 KB HTML (it carries the pricing and checkout strings) + 23 KB CSS + 37 KB JS, one request each, no fonts, no
+external hosts. Every page renders its text with JavaScript off. JS adds the theme and
+monthly/yearly toggles, language persistence, and — on the home page (the Subscribe buttons),
+login, signup, account, billing and delete-account pages — the calls to the API. Everything
+but the home page needs JS and says so in a `<noscript>` notice.
 
 ## Deploy
 
@@ -23,32 +37,181 @@ Page weight: home ≈ 32 KB HTML + 20 KB CSS + 2 KB JS, one request each, no fon
 
 **Vercel** — `cd site && vercel --prod`. Or repo: framework *Other*, output directory `site`. `vercel.json` is inside `site/`.
 
-All three serve `/en/pricing/index.html` at `/en/pricing/` with no config.
+All three serve `/en/privacy/index.html` at `/en/privacy/` with no config.
 
-## Placeholders you still need to fill in
+See **The web -> app handoff** below for the serving rules the two association files
+need. They are the part of this site most easily broken by an innocent-looking redirect.
+
+## Accounts, payments and the API
+
+The site never talks to Stripe and holds no Stripe key. It calls the backend, which returns
+a Stripe Checkout URL, and the browser navigates to it.
+
+Everything external is configured at the top of `src/build.py`:
+
+| Constant | Meaning |
+|---|---|
+| `API_BASE` | `https://api.mizan-ai.org`. Override at build time with `MIZAN_API_BASE=...` (used for local testing). It is also written into the CSP `connect-src`, so changing it here is enough. |
+| `TOKEN_KEY` | `mizan_token` — the only key the JWT is stored under. |
+| `STORE_LINKS` | Play and App Store URLs. An empty string renders that badge as a disabled "coming soon" chip instead of a dead link. |
+| `ANDROID_PACKAGE` | `com.mizan.app`, used by `assetlinks.json`. |
+
+Endpoints used, and nothing else: `POST /auth/signup`, `POST /auth/login`,
+`GET /auth/me/plan`, `DELETE /auth/me`, `POST /billing/checkout`, `POST /billing/portal`.
+
+`GET /auth/me/plan` returns a `provider`, and `/account/` branches on it:
+
+| `provider` | What the account page offers |
+|---|---|
+| `stripe` | **Manage subscription** → `POST /billing/portal` → redirect |
+| `play_store` | No portal button at all (it would 400): "manage it in Google Play" |
+| `app_store` | No portal button at all: "manage it in the App Store" |
+
+Error handling is uniform (`src/site.js`):
+
+- **401** → clear the token, go to `/[lang]/login/`, keeping `?plan=&period=` so the purchase
+  resumes. On the login/signup forms themselves a 401 means "wrong credentials" and is shown
+  in place, never redirected (that would loop).
+- **501** with `code: BILLING_PROVIDER_NOT_CONFIGURED` → a calm "card payments open soon"
+  panel. Never styled as an error.
+- **400** → the response's own `message` is displayed (arrays from Nest validation are joined).
+- **network / 5xx** → one automatic retry, then an explicit "try again" button.
+
+### Carrying the plan from pricing to checkout
+
+The three Subscribe buttons are rendered as ordinary links to
+`/[lang]/signup/?plan=<plan>&period=<period>`, so the choice survives with JS off. With JS on,
+the period toggle rewrites those hrefs, and a signed-in visitor goes straight to
+`POST /billing/checkout` instead of following the link. After signup or login the plan is read
+back out of the query string and checkout starts immediately — no second click.
+
+### Why `/billing/success/` polls
+
+The entitlement is written by a server webhook that can land a second or two after Stripe
+redirects the buyer back. The page reads `GET /auth/me/plan` five times across ~10s and only
+then concludes. An empty first read is normal and must never be shown as a failure; if it is
+still not there after the retries the page says "payment received, your plan is being
+activated" with a support link. It also waits for the plan that was actually bought (stashed in
+`sessionStorage` before leaving for Stripe), because an account upgrading from the free trial
+already has a plan and would otherwise "succeed" while still showing Trial.
+
+## The web -> app handoff
+
+After paying, the buyer presses one button and lands in the app. The website's half:
+
+1. `/[lang]/billing/success/` shows a primary **Open Mizan** button linking to
+   `https://mizan-ai.org/app/billing/activated` — a plain `<a href>`, no `mizan://`
+   custom scheme and no installed-app detection (both misfire on iOS). The plan name and
+   renewal date stay visible *above* the button, so the purchase is confirmed on the web
+   even if the handoff fails.
+2. On desktop the button is replaced by "Open Mizan on your phone and sign in as
+   `<email>`" plus the store badges. A button that cannot work is worse than no button.
+   The switch is by user agent (Android / iPhone / iPad, including iPadOS reporting
+   itself as a Mac).
+3. `/app/billing/activated` is a real page. When the app is installed the OS intercepts
+   the URL and this page is never seen; when it is not, the browser lands here and it
+   says the subscription is active and offers the store badges. It has **no language
+   prefix** (the app claims one URL), so all three languages are in the markup and
+   `site.js` reveals the one matching `?lang=`, then `mizan-lang`, then the browser
+   language, defaulting to English. It never calls the API and can never show an error.
+
+### Serving rules — this is where this feature usually dies
+
+Both association files must answer **200 directly** from the domain root. Apple follows
+zero redirects when fetching the association file and Google follows none when verifying
+App Links, so a single 301 anywhere in the chain silently kills the handoff.
+
+- `netlify.toml` defines **no catch-all redirect**. A rule like `/* /index.html 200`
+  would swallow `/.well-known/*` and `/app/*`. Do not add one.
+- `/app/billing/activated` is a **file** (`app/billing/activated.html`), not a directory.
+  A directory would make Netlify 301 to a trailing slash; this URL must answer directly.
+- `apple-app-site-association` has no extension, so Netlify serves it as
+  `application/octet-stream` — and **neither `_headers` nor `netlify.toml [[headers]]`
+  can override `Content-Type`** (verified against Netlify's own server; the header rules
+  are silently ignored). iOS requires `application/json`. The fix is the rewrite in
+  `netlify.toml`: the canonical path is rewritten with **status 200** onto
+  `.well-known/aasa.json`, whose extension gives it the right type. This is a rewrite,
+  not a redirect — the client still gets 200 at the canonical URL with no `Location`
+  header. `force = true` because the extensionless file also exists on disk, so the URL
+  still resolves if the rule is ever removed.
+- The `Content-Type` lines in `site/_headers` are inert on Netlify but correct on
+  Cloudflare Pages, which does honour them. They are kept for that reason.
+
+Verify after any change to hosting config:
+
+```bash
+curl -sI https://mizan-ai.org/.well-known/assetlinks.json
+curl -sI https://mizan-ai.org/.well-known/apple-app-site-association
+curl -sIL -o /dev/null -w '%{num_redirects} %{http_code} %{content_type}\n' \
+     https://mizan-ai.org/app/billing/activated
+```
+
+Expect `200` and `application/json` on the first two with no `Location` header, and
+`0 200 text/html` on the third. `num_redirects` must be `0` everywhere.
+
+### Never tell a paying customer they have no subscription
+
+The entitlement is written by a webhook that can lag the redirect. Both
+`/[lang]/billing/success/` and `/[lang]/account/` therefore treat "plan not there yet" as
+*activating*, never as failure or as "no subscription":
+
+- At checkout, `site.js` records the plan being bought in `localStorage`
+  (`mizan_token_pending`, with a timestamp, valid 30 minutes).
+- The success page polls `GET /auth/me/plan` five times across ~10s and only accepts the
+  plan that was actually bought — an account upgrading from the free trial already has a
+  plan, so "any plan" would declare success while still showing Trial.
+- If it still has not landed, the page says "payment received, your plan is being
+  activated" with a support link, and the marker is **kept**.
+- `/account/` reads that marker: while it is set and the server plan does not match it,
+  the page shows "Activating your subscription" with a *Check again* button instead of
+  "No active plan". A visitor who never bought anything still sees "No active plan"
+  normally.
+
+## The one-page home
+
+`/[lang]/` is built by `home()` in `src/build.py` in this order: hero with the store badges
+(`#download`), `#pricing`, `#features`, `#ai`, `#languages`, `#privacy` (summary; the full
+policy stays at `/privacy/`), `#support`, closing download call-to-action. The header nav
+follows the same order. Move a section by moving it in the `return` of `home()` and in the
+`links` list of `header()`.
+
+Pricing and Support copy still lives under the `pricing` and `support` keys of the `i18n_*.py`
+files (`h1` is now the section's `<h2>`; `title`/`desc` are no longer used). Legal pages, login,
+signup, account and billing stay separate pages on purpose: the stores need a stable privacy
+and delete-account URL, and the account flows are not marketing content.
+
+## Still to fill in
 
 | # | What | Where |
 |---|------|-------|
-| 1 | Google Play link — `href="#"` on the two Play badges per home page (`data-store-link`) | `src/build.py` → `store_badges()` (or search `data-store-link` in `site/*/index.html`) |
-| 2 | App Store link — same, Apple badges | same |
-| 3 | Official store badge artwork. The badges are drawn with CSS/SVG icons; Google and Apple both require their official badge images for public use. Replace the `<a data-store-link>` contents with `<img>` of the official badges (localised AR/EN/TR versions exist for both). | `store_badges()` |
-| 4 | Stripe Checkout links — `href="#"` on the three Subscribe buttons per pricing page. Each carries `data-plan="basic|smart|pro"` and, once JS runs, `data-billing="monthly|yearly"`, so you can either hardcode six links or set them in `site.js`. | `src/build.py` → `pricing()`; `site/assets/site.js` |
-| 5 | Real app screenshots — the phone frame holds a CSS mock UI. Drop `home-ar.png`, `home-en.png`, `home-tr.png` (≈ 360×780) into `site/assets/screens/` and replace the contents of `<div data-screenshot-slot>` with an `<img>`. There is an HTML comment marking the spot in each home page. | `phone_mock()` |
+| 1 | **App Store URL** — `STORE_LINKS["apple"]` is `""`, so the Apple badge renders as a disabled "coming soon" chip. Put the URL in and it becomes a link. | `src/build.py` |
+| 2 | **assetlinks.json — two SHA-256 fingerprints.** Replace `TODO_UPLOAD_KEY` (your upload key certificate) and `TODO_PLAY_APP_SIGNING` (Play Console → Release → Setup → App signing). Both are needed: sideloaded builds carry the upload key, while what users install from Play is re-signed by Google. The value must stay a JSON **array**. | `src/build.py` → `ASSETLINKS` |
+| 3 | **apple-app-site-association — Team ID.** Replace `TODO_TEAMID` so `appID` reads e.g. `ABCDE12345.com.mizan.app`. | `src/build.py` → `AASA` |
+| 4 | Official store badge artwork. The badges are drawn with CSS/SVG icons; Google and Apple both require their official badge images for public use. Replace the contents of `<a data-store-link>` with `<img>` of the official badges. | `store_badges()` |
+| 5 | Real app screenshots — the phone frame holds a CSS mock UI. Drop `home-ar.png`, `home-en.png`, `home-tr.png` (≈ 360×780) into `site/assets/screens/` and replace the contents of `<div data-screenshot-slot>`. | `phone_mock()` |
 | 6 | Open Graph image — `site/assets/og.png` is a generated 1200×630 wordmark; replace with real artwork if you have it (keep the size). | `site/assets/og.png` |
-| 7 | Legal entity name / country / governing law — the Terms and Privacy refer to "Mizan" and "we". If you operate as a registered company, add its name and jurisdiction to Terms §1 and §11 and Privacy "Contact". | `src/i18n_*.py` |
-| 8 | Hosting/database provider name — Privacy says "a cloud hosting provider". Google Play's Data Safety form does not require the name, but naming it (e.g. Supabase, Firebase) is better practice. | `src/i18n_*.py` → `privacy.sections[3]` |
-| 9 | Retention numbers — 30 days production + 30 days backups, 7 days for email deletion requests, 12 months for support mail. Adjust to what your backend actually does. | `privacy` and `delete` in all three `i18n_*.py` |
+| 7 | Legal entity name / country / governing law — Terms and Privacy refer to "Mizan" and "we". If you operate as a registered company, add its name and jurisdiction to Terms §1 and §11 and Privacy "Contact". | `src/i18n_*.py` |
+| 8 | Hosting/database provider name — Privacy says "a cloud hosting provider". Naming it (e.g. Supabase, Firebase) is better practice. | `src/i18n_*.py` → `privacy.sections[3]` |
+| 9 | Retention numbers — 30 days production + 30 days backups, 7 days for email deletion requests, 12 months for support mail. Adjust to what the backend actually does. | `privacy` and `delete` in all three `i18n_*.py` |
 | 10 | Last-updated date — currently 5 September 2026 in all three languages. | `"date"` key at the top of each `i18n_*.py` |
-| 11 | Domain and email — `mizan-ai.org` / `support@mizan-ai.org` are set. If they change: `DOMAIN` and `EMAIL` at the top of `src/build.py`. | `src/build.py` |
+| 11 | Google Sign-In — the backend exposes `POST /auth/google`, but the site has no Google button: that needs a Google OAuth **web** client ID, which does not exist yet. Email + password only for now. | — |
 
 ## Editing copy or layout
 
 Everything is generated from `src/`:
 
 ```bash
-python3 src/build.py                                  # regenerates site/**/*.html, sitemap, robots
+python3 src/build.py                                  # regenerates site/**/*.html, sitemap, robots, assetlinks
 npx tailwindcss@3.4.17 -c src/tailwind.config.js -i src/input.css -o site/assets/styles.css --minify
 ```
+
+`src/site.js` is the browser code; `build.py` copies it verbatim to `site/assets/site.js`, so
+edit it there, not in the output. It reads its config and **all** of its user-visible strings
+from a `<script type="application/json" id="mizan-data">` island that `build.py` emits from the
+translation files — there are no hardcoded strings in the JavaScript.
+
+`build.py` never deletes `site/favicon.ico`, `site/apple-touch-icon.png` or `site/assets/`
+(see `KEEP`); everything else under `site/` is regenerated from scratch on every run.
 
 Run the second command only if you add Tailwind classes that are not already used somewhere (the CSS is tree-shaken against `site/**/*.html`). Copy changes alone need only `build.py`. Python 3.8+ and Node 18+ are the only tools involved; nothing is needed on the server.
 
@@ -62,12 +225,23 @@ Dark is the default (`<html class="dark">` hardcoded, so it holds with JS off). 
 
 Based on the privacy policy as written:
 
-- Collects: Name, Email address (account management); Financial info → "Other financial info" entered by user (app functionality); Purchase history (via RevenueCat, app functionality); Crash logs, Diagnostics (app functionality).
+- Collects: Name, Email address (account management); Financial info → "Other financial info" entered by user (app functionality); Purchase history (via Stripe for web purchases and RevenueCat for in-app purchases, app functionality); Crash logs, Diagnostics (app functionality).
 - Does not collect: Location, Contacts, Device or other IDs for advertising, Messages, Photos (receipt images are user-uploaded content → "Photos or videos, user-initiated"), Web browsing, Installed apps.
-- Shared with third parties: Financial info text and receipt images with OpenAI (app functionality, only on user action); purchase status with RevenueCat.
+- Shared with third parties: Financial info text and receipt images with OpenAI (app functionality, only on user action); purchase status with RevenueCat (in-app) and Stripe (website). Card numbers are entered on Stripe's own checkout page and never reach Mizan.
 - Data encrypted in transit: Yes. Users can request deletion: Yes (in-app, `/delete-account`). Not sold, not used for ads.
 
 ## Privacy stance of the site itself
 
-No analytics, no cookies, no consent banner, no third-party requests at all. The only browser storage is localStorage for two preferences (`mizan-lang`, `mizan-theme`), which is not tracking and needs no banner under ePrivacy/GDPR.
+No analytics, no cookies, no consent banner, no third-party scripts. The only outbound
+requests are to our own API at `API_BASE`, and only from the pages that need it.
+
+Browser storage, all first-party and all either a preference or strictly necessary for a
+session the visitor asked for — so no consent banner is required under ePrivacy/GDPR:
+
+| Key | Store | Why |
+|---|---|---|
+| `mizan-lang`, `mizan-theme` | localStorage | preferences |
+| `mizan_token` | localStorage | the session JWT. Never put in a URL and never sent anywhere but `API_BASE`. |
+| `mizan_token_email` | localStorage | so `/account/` can show "signed in as". Cleared on sign-out, on any 401 and on account deletion. |
+| `mizan_token_pending` | sessionStorage | the plan being bought, so `/billing/success/` knows which plan to wait for. Cleared as soon as it is read. |
 # mizan-site

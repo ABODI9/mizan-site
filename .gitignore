@@ -11,3 +11,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Local Netlify folder
+.netlify
+
+# Local build config (Paddle token, price ids)
+.env

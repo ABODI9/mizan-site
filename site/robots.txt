@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /*/account/
+Disallow: /*/billing/
 
 Sitemap: https://mizan-ai.org/sitemap.xml

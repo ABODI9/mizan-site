@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TODO_TEAMID.com.mizan.app",
+        "paths": [
+          "/app/*"
+        ]
+      }
+    ]
+  }
+}

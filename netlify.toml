@@ -1,3 +1,40 @@
 [build]
   publish = "site"
   command = ""
+
+# ---------------------------------------------------------------------------
+# NO catch-all redirect or rewrite is defined here, on purpose.
+#
+# /.well-known/assetlinks.json and /.well-known/apple-app-site-association must
+# be served raw from the domain root and answer 200 directly. Apple follows zero
+# redirects when fetching the association file, and Google follows none when
+# verifying App Links. A rule such as
+#     /*  /index.html  200
+# would swallow both and silently kill the web -> app handoff.
+#
+# /app/* must also stay uncaught: it has no /ar /en /tr prefix, and
+# /app/billing/activated is a real file at site/app/billing/activated.html
+# (a file, not a directory, so the URL answers 200 instead of 301-ing to a
+# trailing slash).
+#
+# Security and cache headers live in site/_headers.
+# ---------------------------------------------------------------------------
+
+# apple-app-site-association has no file extension, so Netlify types it as
+# application/octet-stream, and iOS then rejects it. Content-Type CANNOT be
+# fixed with header rules: neither site/_headers nor [[headers]] here overrides
+# it (verified against Netlify's own server - the rules are silently ignored).
+#
+# So the canonical path is REWRITTEN, with status 200, onto a .json twin whose
+# extension gives it the correct type. This is a rewrite, not a redirect: the
+# client still gets 200 at /.well-known/apple-app-site-association itself, with
+# no Location header and no extra hop, which is what Apple requires.
+#
+# force = true because the extensionless file also exists on disk; without it
+# the static file would win and be served as octet-stream again. Keeping that
+# file means the URL still resolves even if this rule is ever removed.
+[[redirects]]
+  from = "/.well-known/apple-app-site-association"
+  to = "/.well-known/aasa.json"
+  status = 200
+  force = true

@@ -1,7 +1,7 @@
 /** Tailwind config for the Mizan site. Colors are CSS variables (see input.css) so the
  *  light/dark theme is one class swap on <html>, and every utility is written once. */
 module.exports = {
-  content: ["./site/**/*.html", "./site/assets/site.js"],
+  content: ["./site/**/*.html", "./site/assets/site.js", "./src/site.js"],
   darkMode: "class",
   theme: {
     extend: {
