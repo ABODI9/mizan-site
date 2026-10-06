@@ -210,6 +210,23 @@ policy stays at `/privacy/`), `#support`, closing download call-to-action. The h
 follows the same order. Move a section by moving it in the `return` of `home()` and in the
 `links` list of `header()`.
 
+### Section URLs (no `#hash`)
+
+The nav does not show `/#pricing`. Clicking Pricing scrolls and the address bar reads
+`/pricing/`; the same for `/features/`, `/ai-coach/`, `/support/` and `/download/`
+(`SECTIONS` in `src/build.py`: slug -> element id). The mechanism:
+
+- The links in the HTML stay plain `/#pricing` anchors, so they work with JS off, in a new
+  tab and from other pages. `site.js` (section URLs block) intercepts the click, scrolls, and
+  `replaceState`s the address bar to `/pricing/`.
+- On Netlify `/pricing/` is rewritten (200) to the home page of the visitor's language, so a
+  reload or a pasted link lands on the same section; `site.js` scrolls on load. Query strings
+  survive, which keeps Paddle's `?_ptxn=` payment links working at `/pricing/?_ptxn=...`.
+- Without rewrites, `site/pricing/index.html` (the fallback) forwards to `/<lang>/#pricing`
+  and `site.js` tidies the URL again.
+- Switching language keeps the section, and old `/#pricing` and `/en/pricing/` links still work.
+- Adding a section: give it an `id` on the home page, add it to `SECTIONS`, rebuild.
+
 Pricing and Support copy still lives under the `pricing` and `support` keys of the `i18n_*.py`
 files (`h1` is now the section's `<h2>`; `title`/`desc` are no longer used). Legal pages, login,
 signup, account and billing stay separate pages on purpose: the stores need a stable privacy

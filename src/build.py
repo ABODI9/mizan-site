@@ -54,6 +54,11 @@ PAGES = ["", "privacy", "terms", "delete-account", "login", "signup"]
 # Their old URLs stay alive as tiny redirect stubs: store listings, Paddle's payment
 # link and old emails may still point at them. old page -> (anchor, nav key)
 MOVED_PAGES = {"pricing": ("pricing", "pricing"), "support": ("support", "support")}
+# The home page's nav jumps to sections. They get friendly URLs instead of #hash:
+# /pricing/ is the home page scrolled to #pricing (the host answers it with the home
+# page; site.js does the scroll and keeps the address bar). slug -> element id.
+SECTIONS = {"pricing": "pricing", "features": "features", "ai-coach": "ai",
+            "support": "support", "download": "download"}
 NOINDEX_PAGES = ["account", "billing/success", "billing/cancel"]
 PRICES = [  # tier index -> (monthly, yearly)
     (None, None), (4.99, 39.99), (7.99, 64.99), (12.99, 99.99),
@@ -238,14 +243,14 @@ try{localStorage.setItem('mizan-lang',l);}catch(e){}
 if(l==='en'||document.cookie.indexOf('mizan_'+l+'=')>-1)history.replaceState(null,'',(m[2]||'/')+location.search+location.hash);
 }catch(e){}})();</script>"""
 
-def head(L, page, title, desc, noindex=False, data="min"):
+def head(L, page, title, desc, noindex=False, data="min", extra=None):
     canon = DOMAIN + lang_url(L, page)
     if noindex:
         alts = '<meta name="robots" content="noindex,nofollow">'
     else:
         alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, page)}">' for X in LANGS)
         alts += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(LANGS[0], page)}">'
-    island = data_island(L, data) if data else ""
+    island = data_island(L, data, extra) if data else ""
     return f'''<!DOCTYPE html>
 <html lang="{L["code"]}" dir="{L["dir"]}" class="dark">
 <head>
@@ -387,7 +392,7 @@ def home(L):
     cta = section("cta", f'<div class="rounded-3xl border border-line bg-gradient-to-br from-surface to-bg p-8 text-center sm:p-14"><h2 class="text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["cta_h2"])}</h2><p class="mx-auto mt-3 max-w-xl text-lg text-muted">{esc(h["cta_p"])}</p><div class="mt-8 flex justify-center">{badges_cta}</div><a href="#pricing" class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">{esc(h["pricing_link"])}{arrow()}</a></div>')
     # One page: download (hero) -> pricing -> the rest. "full" because the pricing
     # buttons need the checkout strings and, when on, the Paddle config.
-    return (head(L, "", h["title"], h["desc"], data="full") + header(L, "") + hero + pricing_section(L)
+    return (head(L, "", h["title"], h["desc"], data="full", extra={"sections": SECTIONS}) + header(L, "") + hero + pricing_section(L)
             + features + ai + langs + priv + support_section(L) + cta + footer(L))
 
 # ---------- Pricing (a section of the home page) ----------
@@ -751,13 +756,16 @@ def app_handoff_page():
 
 
 # ---------- Language-free URL fallback ----------
-def router(page=""):
+def router(page="", section=None):
     """site/<page>/index.html (and site/index.html for the home page): the page that
     answers a language-free URL when the host did not rewrite it. On Netlify the
     rules in _redirects (REDIRECTS) win over this file and serve the visitor's
     language directly; anywhere else this forwards to /<lang>/<page>/, and the
-    snippet in that page's <head> hides the prefix again."""
-    path = url(EN, page)
+    snippet in that page's <head> hides the prefix again. For a section slug
+    (/pricing/) the target is the home page plus #<id>; site.js then shows /pricing/."""
+    path = url(EN, "" if section else page)
+    page = "" if section else page
+    tail = f"'#{section}'" if section else "location.hash"
     links = "".join(f'<a href="{lang_url(X, page)}" hreflang="{X["code"]}" lang="{X["code"]}" dir="{X["dir"]}" data-lang="{X["code"]}" class="rounded-lg border border-line bg-surface px-5 py-2.5 hover:border-muted">{esc(X["native"])}</a>' for X in LANGS)
     alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, page)}">' for X in LANGS) + f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(EN, page)}">'
     return f'''<!DOCTYPE html>
@@ -769,7 +777,7 @@ def router(page=""):
 <link rel="canonical" href="{DOMAIN}{lang_url(EN, page)}">{alts}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/styles.css">
-<script>(function(){{var l='en';try{{var s=localStorage.getItem('mizan-lang');if(s==='en'||s==='tr'||s==='ar')l=s;}}catch(e){{}}if(/(^|; )mizan_ar=/.test(document.cookie))l='ar';else if(/(^|; )mizan_tr=/.test(document.cookie))l='tr';location.replace('/'+l+'{path}'+location.search+location.hash);}})();</script>
+<script>(function(){{var l='en';try{{var s=localStorage.getItem('mizan-lang');if(s==='en'||s==='tr'||s==='ar')l=s;}}catch(e){{}}if(/(^|; )mizan_ar=/.test(document.cookie))l='ar';else if(/(^|; )mizan_tr=/.test(document.cookie))l='tr';location.replace('/'+l+'{path}'+location.search+{tail});}})();</script>
 <noscript><meta http-equiv="refresh" content="0; url={lang_url(EN, page)}"></noscript>
 </head>
 <body class="min-h-screen bg-bg text-fg antialiased">
@@ -880,7 +888,7 @@ VERCEL = """{
 """.replace("__CSP__", CSP)
 
 # Every page that has a language-free URL (and so needs a rewrite and a fallback).
-CLEAN_PAGES = list(dict.fromkeys(PAGES + NOINDEX_PAGES + list(MOVED_PAGES)))
+CLEAN_PAGES = list(dict.fromkeys(PAGES + NOINDEX_PAGES + list(MOVED_PAGES) + list(SECTIONS)))
 
 def redirects():
     """Netlify: answer /privacy/ with /ar/privacy/ (or /tr/...) when the visitor's
@@ -894,9 +902,10 @@ def redirects():
            "# Language-free URLs: rewrite (200, URL unchanged) to the visitor's language."]
     for page in CLEAN_PAGES:
         src = url(EN, page)
+        dest = "" if page in SECTIONS else page   # /pricing/ is the home page, scrolled
         for X in LANGS[1:]:
-            out.append(f"{src} {lang_url(X, page)} 200! Cookie=mizan_{X['code']}")
-        out.append(f"{src} {lang_url(EN, page)} 200!")
+            out.append(f"{src} {lang_url(X, dest)} 200! Cookie=mizan_{X['code']}")
+        out.append(f"{src} {lang_url(EN, dest)} 200!")
     return "\n".join(out) + "\n"
 
 _FP = json.loads(ASSETLINKS)[0]["target"]["sha256_cert_fingerprints"]
@@ -930,7 +939,7 @@ def main():
         write(f"{L['code']}/billing/success/index.html", billing_success(L))
         write(f"{L['code']}/billing/cancel/index.html", billing_cancel(L))
     for page in CLEAN_PAGES:   # fallback for hosts that ignore _redirects
-        write(f"{page}/index.html" if page else "index.html", router(page))
+        write(f"{page}/index.html" if page else "index.html", router(page, SECTIONS.get(page)))
     write("_redirects", redirects())
     write("assets/site.js", SITE_JS)
     write("favicon.svg", FAVICON)

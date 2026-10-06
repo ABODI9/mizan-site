@@ -27,9 +27,18 @@
 /billing/cancel/ /ar/billing/cancel/ 200! Cookie=mizan_ar
 /billing/cancel/ /tr/billing/cancel/ 200! Cookie=mizan_tr
 /billing/cancel/ /en/billing/cancel/ 200!
-/pricing/ /ar/pricing/ 200! Cookie=mizan_ar
-/pricing/ /tr/pricing/ 200! Cookie=mizan_tr
-/pricing/ /en/pricing/ 200!
-/support/ /ar/support/ 200! Cookie=mizan_ar
-/support/ /tr/support/ 200! Cookie=mizan_tr
-/support/ /en/support/ 200!
+/pricing/ /ar/ 200! Cookie=mizan_ar
+/pricing/ /tr/ 200! Cookie=mizan_tr
+/pricing/ /en/ 200!
+/support/ /ar/ 200! Cookie=mizan_ar
+/support/ /tr/ 200! Cookie=mizan_tr
+/support/ /en/ 200!
+/features/ /ar/ 200! Cookie=mizan_ar
+/features/ /tr/ 200! Cookie=mizan_tr
+/features/ /en/ 200!
+/ai-coach/ /ar/ 200! Cookie=mizan_ar
+/ai-coach/ /tr/ 200! Cookie=mizan_tr
+/ai-coach/ /en/ 200!
+/download/ /ar/ 200! Cookie=mizan_ar
+/download/ /tr/ 200! Cookie=mizan_tr
+/download/ /en/ 200!

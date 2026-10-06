@@ -14,13 +14,15 @@
 (function () {
   'use strict';
   var d = document.documentElement;
+  var activeSection = '';   // element id of the home-page section the URL points at
 
   // ---------- preferences ----------
   document.querySelectorAll('[data-lang]').forEach(function (a) {
     a.addEventListener('click', function () {
       try { localStorage.setItem('mizan-lang', a.getAttribute('data-lang')); } catch (e) {}
       // One page: switching language keeps the visitor on the section they are reading.
-      if (location.hash) a.setAttribute('href', a.getAttribute('href').split('#')[0] + location.hash);
+      var keep = activeSection ? '#' + activeSection : location.hash;
+      if (keep) a.setAttribute('href', a.getAttribute('href').split('#')[0] + keep);
     });
   });
 
@@ -47,6 +49,45 @@
     if (island) DATA = JSON.parse(island.textContent);
   } catch (e) {}
   if (!DATA) return;
+
+  // ---------- section URLs (home page only) ----------
+  // The home page is one page and its nav jumps to sections. Instead of /#pricing the
+  // address bar shows /pricing/, which the host answers with the same home page (see
+  // redirects() in build.py), so it survives a reload and can be shared. DATA.sections
+  // maps the slug in the URL to the element id. Without JS the links stay plain #id
+  // anchors and still scroll.
+  var SECTIONS = DATA.sections || null;
+  if (SECTIONS) {
+    var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+    var slugOf = function (id) {
+      for (var k in SECTIONS) if (has(SECTIONS, k) && SECTIONS[k] === id) return k;
+      return '';
+    };
+    var showSection = function (slug, smooth) {
+      var el = document.getElementById(SECTIONS[slug]);
+      if (!el) return false;
+      activeSection = SECTIONS[slug];
+      try { el.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'instant' }); }
+      catch (e) { el.scrollIntoView(); }
+      // replaceState, not pushState: Back leaves the page instead of stepping through sections.
+      try { history.replaceState(null, '', '/' + slug + '/' + location.search); } catch (e) {}
+      return true;
+    };
+
+    // Arriving on /pricing/ (the home page, answered by the host) or on /#pricing.
+    var pm = /^\/([a-z-]+)\/?$/.exec(location.pathname);
+    var first = pm && has(SECTIONS, pm[1]) ? pm[1] : slugOf(location.hash.slice(1));
+    if (first) showSection(first, false);
+
+    // Clicking a link to a section of this page.
+    document.addEventListener('click', function (ev) {
+      if (ev.defaultPrevented || ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      var m = a && /^\/?#([a-z]+)$/.exec(a.getAttribute('href'));
+      var slug = m && slugOf(m[1]);
+      if (slug && showSection(slug, true)) ev.preventDefault();
+    });
+  }
 
   var CFG = DATA.cfg;
   var T = DATA.i18n || null;
