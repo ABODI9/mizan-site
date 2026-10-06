@@ -18,6 +18,11 @@
 # trailing slash).
 #
 # Security and cache headers live in site/_headers.
+#
+# Language-free URLs (/privacy/ instead of /en/privacy/) are rewritten by
+# site/_redirects, which build.py generates: exact paths only, status 200, chosen by
+# the mizan_ar / mizan_tr cookie. That is deliberately NOT a catch-all, so the
+# warning above still holds: do not add one.
 # ---------------------------------------------------------------------------
 
 # apple-app-site-association has no file extension, so Netlify types it as

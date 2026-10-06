@@ -119,6 +119,15 @@ CUR = ' aria-current="true"'
 CURP = ' aria-current="page"'
 
 def url(lang, page=""):
+    """The URL every link inside the site uses: no language in it (/privacy/, not
+    /en/privacy/). `lang` is accepted and ignored so call sites read the same.
+    Netlify answers it with the visitor's language, chosen by the mizan_ar /
+    mizan_tr cookie (see REDIRECTS); site/<page>/index.html is the fallback."""
+    return "/" + (f"{page}/" if page else "")
+
+def lang_url(lang, page=""):
+    """The real file for one language, /ar/privacy/. Only for things that must
+    name a language: the switcher, canonical/hreflang, the sitemap."""
     return f"/{lang['code']}/" + (f"{page}/" if page else "")
 
 def section_url(lang, anchor):
@@ -215,13 +224,27 @@ def data_island(L, level, extra=None):
     return f'<script type="application/json" id="mizan-data">{blob}</script>'
 
 
+# Runs in <head> of every page, before anything paints. On a real language file
+# (/ar/privacy/) it (1) remembers the language - the mizan_ar / mizan_tr cookie is
+# what Netlify routes on, English is "neither" - and (2) rewrites the address bar
+# to the language-free URL (/privacy/). It only hides the prefix once the cookie is
+# confirmed, so a reload at the clean URL lands on the same language. No-op on
+# any URL without a language prefix. Plain string, not an f-string: single braces.
+LANG_URL_JS = """<script>(function(){try{
+var m=/^\\/(en|ar|tr)(\\/.*)?$/.exec(location.pathname);if(!m)return;
+var l=m[1],sec=location.protocol==='https:'?';Secure':'';
+['ar','tr'].forEach(function(c){document.cookie='mizan_'+c+'='+(c===l?'1;max-age=31536000':';max-age=0')+';path=/;SameSite=Lax'+sec;});
+try{localStorage.setItem('mizan-lang',l);}catch(e){}
+if(l==='en'||document.cookie.indexOf('mizan_'+l+'=')>-1)history.replaceState(null,'',(m[2]||'/')+location.search+location.hash);
+}catch(e){}})();</script>"""
+
 def head(L, page, title, desc, noindex=False, data="min"):
-    canon = DOMAIN + url(L, page)
+    canon = DOMAIN + lang_url(L, page)
     if noindex:
         alts = '<meta name="robots" content="noindex,nofollow">'
     else:
-        alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{url(X, page)}">' for X in LANGS)
-        alts += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{url(LANGS[0], page)}">'
+        alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, page)}">' for X in LANGS)
+        alts += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(LANGS[0], page)}">'
     island = data_island(L, data) if data else ""
     return f'''<!DOCTYPE html>
 <html lang="{L["code"]}" dir="{L["dir"]}" class="dark">
@@ -252,6 +275,7 @@ def head(L, page, title, desc, noindex=False, data="min"):
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/styles.css">
 <script>(function(){{var d=document.documentElement;d.classList.add('js');try{{if(localStorage.getItem('mizan-theme')==='light'){{d.classList.remove('dark');}}}}catch(e){{}}}})();</script>
+{LANG_URL_JS}
 {island}
 </head>
 <body class="min-h-screen bg-bg text-fg antialiased">
@@ -262,7 +286,7 @@ def lang_switcher(L, page, cls=""):
     items = ""
     for X in LANGS:
         cur = X["code"] == L["code"]
-        a = (f'<a href="{url(X, page)}" hreflang="{X["code"]}" lang="{X["code"]}" data-lang="{X["code"]}" '
+        a = (f'<a href="{lang_url(X, page)}" hreflang="{X["code"]}" lang="{X["code"]}" data-lang="{X["code"]}" '
              f'class="rounded-md px-2.5 py-1 text-sm transition-colors {"bg-primary/15 text-fg font-medium" if cur else "text-muted hover:text-fg"}"'
              f'{CUR if cur else ""}>{esc(X["native"])}</a>')
         items += a
@@ -432,17 +456,17 @@ def moved_page(L, anchor, nav_key):
     along on purpose: Paddle's payment links land on whatever URL the dashboard
     names, with ?_ptxn= on it, and the home page is what opens that checkout."""
     label = L["nav"][nav_key]
-    target = section_url(L, anchor)
+    target = lang_url(L) + "#" + anchor
     return f'''<!DOCTYPE html>
 <html lang="{L["code"]}" dir="{L["dir"]}" class="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(label)} — Mizan</title>
 <meta name="robots" content="noindex,follow">
-<link rel="canonical" href="{DOMAIN}{url(L)}">
+<link rel="canonical" href="{DOMAIN}{lang_url(L)}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/styles.css">
-<script>location.replace('{url(L)}'+location.search+'#{anchor}');</script>
+<script>location.replace('{lang_url(L)}'+location.search+'#{anchor}');</script>
 <noscript><meta http-equiv="refresh" content="0; url={target}"></noscript>
 </head>
 <body class="min-h-screen bg-bg text-fg antialiased">
@@ -687,7 +711,7 @@ def app_handoff_page():
             f'<p data-app-text class="mx-auto mt-4 max-w-md text-muted">{esc(a["p_generic"])}</p>'
             f'<h2 class="mt-8 text-sm font-semibold uppercase tracking-wide text-muted">{esc(a["get_h"])}</h2>'
             f'<div class="mt-4 flex flex-wrap justify-center gap-3">{badges}</div>'
-            f'<a href="{url(X, "account")}" class="mt-8 inline-flex items-center gap-2 font-medium text-primary hover:underline">{esc(a["account_link"])}{arrow()}</a>'
+            f'<a href="{lang_url(X, "account")}" class="mt-8 inline-flex items-center gap-2 font-medium text-primary hover:underline">{esc(a["account_link"])}{arrow()}</a>'
             f'</div>')
     switcher = "".join(
         f'<button type="button" data-applang-btn="{X["code"]}" lang="{X["code"]}" '
@@ -726,21 +750,27 @@ def app_handoff_page():
 '''
 
 
-# ---------- Root redirect ----------
-def root():
-    links = "".join(f'<a href="{url(X)}" hreflang="{X["code"]}" lang="{X["code"]}" dir="{X["dir"]}" data-lang="{X["code"]}" class="rounded-lg border border-line bg-surface px-5 py-2.5 hover:border-muted">{esc(X["native"])}</a>' for X in LANGS)
-    alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{url(X)}">' for X in LANGS) + f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}/en/">'
+# ---------- Language-free URL fallback ----------
+def router(page=""):
+    """site/<page>/index.html (and site/index.html for the home page): the page that
+    answers a language-free URL when the host did not rewrite it. On Netlify the
+    rules in _redirects (REDIRECTS) win over this file and serve the visitor's
+    language directly; anywhere else this forwards to /<lang>/<page>/, and the
+    snippet in that page's <head> hides the prefix again."""
+    path = url(EN, page)
+    links = "".join(f'<a href="{lang_url(X, page)}" hreflang="{X["code"]}" lang="{X["code"]}" dir="{X["dir"]}" data-lang="{X["code"]}" class="rounded-lg border border-line bg-surface px-5 py-2.5 hover:border-muted">{esc(X["native"])}</a>' for X in LANGS)
+    alts = "".join(f'<link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, page)}">' for X in LANGS) + f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(EN, page)}">'
     return f'''<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mizan · ميزان</title>
 <meta name="robots" content="noindex,follow">
-<link rel="canonical" href="{DOMAIN}/en/">{alts}
+<link rel="canonical" href="{DOMAIN}{lang_url(EN, page)}">{alts}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/styles.css">
-<script>(function(){{var l='en';try{{var s=localStorage.getItem('mizan-lang');if(s==='en'||s==='tr'||s==='ar')l=s;}}catch(e){{}}location.replace('/'+l+'/');}})();</script>
-<noscript><meta http-equiv="refresh" content="0; url=/en/"></noscript>
+<script>(function(){{var l='en';try{{var s=localStorage.getItem('mizan-lang');if(s==='en'||s==='tr'||s==='ar')l=s;}}catch(e){{}}if(/(^|; )mizan_ar=/.test(document.cookie))l='ar';else if(/(^|; )mizan_tr=/.test(document.cookie))l='tr';location.replace('/'+l+'{path}'+location.search+location.hash);}})();</script>
+<noscript><meta http-equiv="refresh" content="0; url={lang_url(EN, page)}"></noscript>
 </head>
 <body class="min-h-screen bg-bg text-fg antialiased">
 <main class="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
@@ -805,8 +835,8 @@ def sitemap():
     today = "2026-09-05"; out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
     for p in PAGES:
         for L in LANGS:
-            alts = "".join(f'<xhtml:link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{url(X, p)}"/>' for X in LANGS) + f'<xhtml:link rel="alternate" hreflang="x-default" href="{DOMAIN}{url(AR, p)}"/>'
-            out.append(f'<url><loc>{DOMAIN}{url(L, p)}</loc><lastmod>{today}</lastmod>{alts}</url>')
+            alts = "".join(f'<xhtml:link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, p)}"/>' for X in LANGS) + f'<xhtml:link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(AR, p)}"/>'
+            out.append(f'<url><loc>{DOMAIN}{lang_url(L, p)}</loc><lastmod>{today}</lastmod>{alts}</url>')
     out.append("</urlset>"); return "\n".join(out)
 
 FAVICON = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><linearGradient id="g" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#3B82F6"/><stop offset="1" stop-color="#14B8A6"/></linearGradient></defs><rect width="48" height="48" rx="11" fill="#0F172A"/><g fill="none" stroke="url(#g)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" transform="translate(4 4) scale(.833)"><path d="M24 9v31M17 40h14M7 15h34"/><circle cx="24" cy="9" r="2.4" fill="url(#g)"/><path d="M12 15 6 27h12zM36 15l-6 12h12z"/><path d="M6 27.5a6 6 0 0 0 12 0M30 27.5a6 6 0 0 0 12 0"/></g></svg>'''
@@ -849,6 +879,26 @@ VERCEL = """{
 }
 """.replace("__CSP__", CSP)
 
+# Every page that has a language-free URL (and so needs a rewrite and a fallback).
+CLEAN_PAGES = list(dict.fromkeys(PAGES + NOINDEX_PAGES + list(MOVED_PAGES)))
+
+def redirects():
+    """Netlify: answer /privacy/ with /ar/privacy/ (or /tr/...) when the visitor's
+    mizan_ar / mizan_tr cookie says so, English otherwise. Status 200 is a rewrite:
+    the address bar keeps /privacy/ and the query string is passed through. The
+    trailing ! forces the rule even though site/privacy/index.html (the router
+    fallback) exists. Cookie conditions match the cookie NAME only, which is why
+    there is one cookie per language and English is "neither". Exact paths only:
+    this is not a catch-all, so /.well-known/* and /app/* are never touched."""
+    out = ["# Generated by src/build.py (redirects()); do not edit this file.",
+           "# Language-free URLs: rewrite (200, URL unchanged) to the visitor's language."]
+    for page in CLEAN_PAGES:
+        src = url(EN, page)
+        for X in LANGS[1:]:
+            out.append(f"{src} {lang_url(X, page)} 200! Cookie=mizan_{X['code']}")
+        out.append(f"{src} {lang_url(EN, page)} 200!")
+    return "\n".join(out) + "\n"
+
 _FP = json.loads(ASSETLINKS)[0]["target"]["sha256_cert_fingerprints"]
 ASSETLINKS_HAS_FINGERPRINT = bool(_FP) and not any(f.startswith("TODO") for f in _FP)
 AASA_HAS_TEAM_ID = "TODO_TEAMID" not in AASA
@@ -879,12 +929,15 @@ def main():
         write(f"{L['code']}/account/index.html", account_page(L))
         write(f"{L['code']}/billing/success/index.html", billing_success(L))
         write(f"{L['code']}/billing/cancel/index.html", billing_cancel(L))
-    write("index.html", root())
+    for page in CLEAN_PAGES:   # fallback for hosts that ignore _redirects
+        write(f"{page}/index.html" if page else "index.html", router(page))
+    write("_redirects", redirects())
     write("assets/site.js", SITE_JS)
     write("favicon.svg", FAVICON)
     write("sitemap.xml", sitemap())
     write("robots.txt", "User-agent: *\nAllow: /\n"
-                        "Disallow: /*/account/\nDisallow: /*/billing/\n\n"
+                        "Disallow: /*/account/\nDisallow: /*/billing/\n"
+                        "Disallow: /account/\nDisallow: /billing/\n\n"
                         f"Sitemap: {DOMAIN}/sitemap.xml\n")
     write(".well-known/assetlinks.json", ASSETLINKS)
     write(".well-known/apple-app-site-association", AASA)
@@ -901,7 +954,7 @@ def main():
     write("_headers", HEADERS)
     write("vercel.json", VERCEL)
     write("404.html", head(EN, "", "Page not found — Mizan", "This page does not exist.").replace('<html lang="en" dir="ltr" class="dark">', '<html lang="en" class="dark">') + header(EN, "")
-          + '<div class="mx-auto max-w-3xl px-4 py-24 text-center"><h1 class="text-4xl font-bold">404</h1><p class="mt-3 text-muted">This page does not exist.</p><div class="mt-6 flex justify-center gap-3">' + "".join(f'<a href="{url(X)}" hreflang="{X["code"]}" lang="{X["code"]}" class="rounded-lg border border-line bg-surface px-4 py-2 hover:border-muted">{X["native"]}</a>' for X in LANGS) + "</div></div>" + footer(EN))
+          + '<div class="mx-auto max-w-3xl px-4 py-24 text-center"><h1 class="text-4xl font-bold">404</h1><p class="mt-3 text-muted">This page does not exist.</p><div class="mt-6 flex justify-center gap-3">' + "".join(f'<a href="{lang_url(X)}" hreflang="{X["code"]}" lang="{X["code"]}" class="rounded-lg border border-line bg-surface px-4 py-2 hover:border-muted">{X["native"]}</a>' for X in LANGS) + "</div></div>" + footer(EN))
     print("site written to", os.path.abspath(OUT))
     print("   api      :", API_BASE)
     print("   app link:", APP_HANDOFF_URL)
