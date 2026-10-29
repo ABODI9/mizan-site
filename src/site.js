@@ -92,6 +92,7 @@
   var CFG = DATA.cfg;
   var T = DATA.i18n || null;
   var EMAIL_KEY = CFG.tokenKey + '_email';
+  var MIN_PASSWORD = 8;
 
   function token() { try { return localStorage.getItem(CFG.tokenKey) || ''; } catch (e) { return ''; } }
   function setToken(v) { try { localStorage.setItem(CFG.tokenKey, v); } catch (e) {} }
@@ -621,7 +622,7 @@
       var password = passEl.value || '';
 
       if (!email) { fail(T.auth.errors.email); emailEl.focus(); return; }
-      if (mode === 'signup' ? password.length < 6 : !password) {
+      if (mode === 'signup' ? password.length < MIN_PASSWORD : !password) {
         fail(T.auth.errors.password);
         passEl.focus();
         return;
@@ -647,6 +648,114 @@
           // shown in place and never bounced back to this same page.
           if (e.code === 'ACCOUNT_EXISTS_WITH_PASSWORD') { fail(T.auth.errors.account_exists_with_password); return; }
           fail(e.status === 0 ? T.auth.errors.network : (e.message || T.auth.errors.network));
+        });
+    });
+  }
+
+  // ---------- forgot / reset / verify ----------
+  // The reset and verify tokens travel in the URL fragment. It is read once, then
+  // removed from the address bar so it is not kept in history, and it is never
+  // logged. Nothing auto-submits: email security scanners follow links and may run
+  // scripts, so a page that acted on load would burn the single-use token.
+  function takeHashToken() {
+    var m = /(?:^#|&)token=([^&]+)/.exec(location.hash || '');
+    if (!m) return '';
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    return decodeURIComponent(m[1]);
+  }
+  function linkPanel(tone, heading, body, href, label) {
+    var el = panel(tone, heading, body);
+    var a = document.createElement('a');
+    a.href = href;
+    a.className = 'mt-3 inline-block font-medium text-primary hover:underline';
+    a.textContent = label;
+    el.appendChild(a);
+    return el;
+  }
+  function formBits(root) {
+    var form = root.querySelector('[data-pw-form], [data-pw-change]');
+    var btn = form.querySelector('[data-submit]');
+    var errBox = form.querySelector('[data-form-error]');
+    var idle = function () { btn.disabled = false; btn.textContent = btn.getAttribute('data-label'); };
+    var busy = function () { btn.disabled = true; btn.textContent = btn.getAttribute('data-working'); };
+    var fail = function (msg) { errBox.textContent = msg; show(errBox); idle(); };
+    return { form: form, btn: btn, errBox: errBox, idle: idle, busy: busy, fail: fail };
+  }
+  function tokenInvalid(host, e) {
+    return e && (e.code === 'TOKEN_INVALID' || e.code === 'TOKEN_EXPIRED' || e.status === 400 || e.status === 404);
+  }
+
+  var pwRoot = document.querySelector('[data-pw-page]');
+  if (pwRoot) {
+    var kind = pwRoot.getAttribute('data-pw-page');
+    var pw = formBits(pwRoot);
+    var pwHost = pwRoot.querySelector('[data-pw-status]');
+    var pwToken = kind === 'forgot' ? '' : takeHashToken();
+
+    if (kind !== 'forgot' && !pwToken) {
+      hide(pw.form);
+      pwHost.appendChild(linkPanel('bad', T.auth.errors.token_invalid, '', CFG.urls.forgot, T.auth.errors.token_new_link));
+    }
+
+    pw.form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      hide(pw.errBox);
+      clear(pwHost);
+
+      if (kind === 'forgot') {
+        var emailEl = pw.form.querySelector('#email');
+        var email = (emailEl.value || '').trim();
+        if (!email) { pw.fail(T.auth.errors.email); emailEl.focus(); return; }
+        pw.busy();
+        request('/auth/forgot', { method: 'POST', body: { email: email, lang: CFG.lang } })
+          .then(function () { hide(pw.form); pwHost.appendChild(panel('ok', T.auth.forgot.sent, '')); })
+          .catch(function (e) {
+            // Only a dead network is reported. Any answer from the server, including
+            // a rate limit, shows the same sentence: the page must not reveal whether
+            // the address has an account.
+            if (e.status === 0) { pw.fail(T.auth.errors.network); return; }
+            hide(pw.form); pwHost.appendChild(panel('ok', T.auth.forgot.sent, ''));
+          });
+        return;
+      }
+
+      if (kind === 'reset') {
+        var p1 = pw.form.querySelector('#password');
+        var p2 = pw.form.querySelector('#password2');
+        if ((p1.value || '').length < MIN_PASSWORD) { pw.fail(T.auth.errors.password); p1.focus(); return; }
+        if (p1.value !== p2.value) { pw.fail(T.auth.errors.password_match); p2.focus(); return; }
+        pw.busy();
+        request('/auth/reset', { method: 'POST', body: { token: pwToken, password: p1.value } })
+          .then(function () {
+            hide(pw.form);
+            pwHost.appendChild(linkPanel('ok', T.auth.reset.done_h, T.auth.reset.done_p, CFG.urls.login, T.auth.reset.login_link));
+          })
+          .catch(function (e) {
+            if (e.code === 'PASSWORD_TOO_SHORT') { pw.fail(T.auth.errors.password); return; }
+            if (tokenInvalid(pwHost, e)) {
+              hide(pw.form);
+              pwHost.appendChild(linkPanel('bad', T.auth.errors.token_invalid, '', CFG.urls.forgot, T.auth.errors.token_new_link));
+              return;
+            }
+            pw.fail(e.status === 0 ? T.auth.errors.network : (e.message || T.auth.errors.network));
+          });
+        return;
+      }
+
+      // verify
+      pw.busy();
+      request('/auth/verify-email', { method: 'POST', body: { token: pwToken } })
+        .then(function () {
+          hide(pw.form);
+          pwHost.appendChild(linkPanel('ok', T.auth.verify.done_h, T.auth.verify.done_p, token() ? CFG.urls.account : CFG.urls.login, T.auth.verify.login_link));
+        })
+        .catch(function (e) {
+          if (tokenInvalid(pwHost, e)) {
+            hide(pw.form);
+            pwHost.appendChild(panel('bad', T.auth.errors.token_invalid, ''));
+            return;
+          }
+          pw.fail(e.status === 0 ? T.auth.errors.network : (e.message || T.auth.errors.network));
         });
     });
   }
@@ -751,6 +860,55 @@
       accRoot.querySelector('[data-signout]').addEventListener('click', function () {
         clearToken();
         location.href = CFG.urls.home;
+      });
+
+      // ---- security: change password (only for accounts that have one), sign out everywhere
+      var secCard = accRoot.querySelector('[data-security-card]');
+      var pwc = formBits(secCard);
+      var pwcHost = secCard.querySelector('[data-pw-status]');
+      request('/auth/me', { auth: true })
+        .then(function (me) { if (me && me.hasPassword) show(pwc.form); })
+        .catch(function () {});           // the plan request below reports real failures
+      pwc.form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        hide(pwc.errBox);
+        clear(pwcHost);
+        var cur = pwc.form.querySelector('#current_password');
+        var n1 = pwc.form.querySelector('#new_password');
+        var n2 = pwc.form.querySelector('#new_password2');
+        if (!cur.value) { pwc.fail(T.account.pw_wrong); cur.focus(); return; }
+        if ((n1.value || '').length < MIN_PASSWORD) { pwc.fail(T.auth.errors.password); n1.focus(); return; }
+        if (n1.value !== n2.value) { pwc.fail(T.auth.errors.password_match); n2.focus(); return; }
+        pwc.busy();
+        request('/auth/password', { method: 'PATCH', auth: true, body: { currentPassword: cur.value, newPassword: n1.value } })
+          .then(function (r) {
+            // The server signed every other session out; this one continues on the new token.
+            if (r && r.token) setToken(r.token);
+            pwc.form.reset();
+            pwc.idle();
+            pwcHost.appendChild(panel('ok', T.account.pw_done, ''));
+          })
+          .catch(function (e) {
+            if (e.code === 'WRONG_PASSWORD') { pwc.fail(T.account.pw_wrong); cur.focus(); return; }
+            if (e.code === 'PASSWORD_TOO_SHORT') { pwc.fail(T.auth.errors.password); return; }
+            if (e.code === 'NO_PASSWORD') { hide(pwc.form); pwc.idle(); return; }
+            if (e.status === 401) { toLogin(null, null); return; }
+            pwc.fail(e.status === 0 ? T.auth.errors.network : (e.message || T.auth.errors.network));
+          });
+      });
+      var outAll = secCard.querySelector('[data-logout-all]');
+      var outHost = secCard.querySelector('[data-logout-status]');
+      outAll.addEventListener('click', function () {
+        if (!window.confirm(outAll.getAttribute('data-confirm'))) return;
+        clear(outHost);
+        outAll.disabled = true;
+        request('/auth/logout-all', { method: 'POST', auth: true })
+          .then(function () { clearToken(); location.href = CFG.urls.home; })
+          .catch(function (e) {
+            if (e.status === 401) { clearToken(); location.href = CFG.urls.home; return; }
+            outAll.disabled = false;
+            outHost.appendChild(retryPanel(e.message || T.auth.errors.network, function () { outAll.click(); }));
+          });
       });
 
       var portalBtn = accRoot.querySelector('[data-portal]');

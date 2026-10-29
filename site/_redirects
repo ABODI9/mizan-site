@@ -30,6 +30,15 @@
 /billing/cancel/ /ar/billing/cancel/ 200! Cookie=mizan_ar
 /billing/cancel/ /tr/billing/cancel/ 200! Cookie=mizan_tr
 /billing/cancel/ /en/billing/cancel/ 200!
+/forgot-password/ /ar/forgot-password/ 200! Cookie=mizan_ar
+/forgot-password/ /tr/forgot-password/ 200! Cookie=mizan_tr
+/forgot-password/ /en/forgot-password/ 200!
+/reset-password/ /ar/reset-password/ 200! Cookie=mizan_ar
+/reset-password/ /tr/reset-password/ 200! Cookie=mizan_tr
+/reset-password/ /en/reset-password/ 200!
+/verify-email/ /ar/verify-email/ 200! Cookie=mizan_ar
+/verify-email/ /tr/verify-email/ 200! Cookie=mizan_tr
+/verify-email/ /en/verify-email/ 200!
 /pricing/ /ar/ 200! Cookie=mizan_ar
 /pricing/ /tr/ 200! Cookie=mizan_tr
 /pricing/ /en/ 200!

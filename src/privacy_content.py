@@ -35,6 +35,8 @@ EN_PRIVACY = {
             "- Apple App Store and Google Play process in-app purchases, renewals, cancellations and refunds. RevenueCat receives Mizan’s authenticated user ID plus store, product and subscription-event data so Mizan can verify entitlement status across devices.",
             "- Google processes identity data when you choose Google Sign-In.",
             "- Netlify hosts the public website, Render hosts the backend API, and Neon provides the PostgreSQL database. These infrastructure providers process request, account and service data as needed to operate and secure Mizan.",
+            "- Resend \u2014 sends transactional emails (email confirmation and password reset). Receives your email address and the message content.",
+            "We only send emails needed to operate your account. We do not send marketing emails.",
             "Mizan may disclose information when legally required or to protect users, the service or legal rights. It does not share data with data brokers or advertisers.",
         ]),
         ("Security and deletion", [
@@ -105,6 +107,8 @@ AR_PRIVACY = {
             "- يعالج App Store وGoogle Play مشتريات التطبيق وتجديدها وإلغاءها وردّها. تتلقى RevenueCat معرّف مستخدم ميزان الموثق وبيانات المتجر والمنتج وأحداث الاشتراك للتحقق من الاستحقاق عبر الأجهزة.",
             "- تعالج Google بيانات الهوية عند اختيار تسجيل الدخول عبر Google.",
             "- يستضيف Netlify الموقع العام، ويستضيف Render الواجهة البرمجية، ويوفر Neon قاعدة بيانات PostgreSQL. وتعالج هذه الجهات بيانات الطلب والحساب والخدمة بالقدر اللازم لتشغيل ميزان وتأمينه.",
+            "- Resend \u2014 يرسل رسائل البريد الخدمية (تأكيد البريد وإعادة تعيين كلمة المرور). يستلم بريدك الإلكتروني ومحتوى الرسالة.",
+            "لا نرسل إلا الرسائل اللازمة لتشغيل حسابك، ولا نرسل رسائل تسويقية.",
             "قد يكشف ميزان معلومات عند إلزامه قانونًا أو لحماية المستخدمين أو الخدمة أو الحقوق القانونية، ولا يشاركها مع وسطاء البيانات أو المعلنين.",
         ]),
         ("الأمان والحذف", [
@@ -161,6 +165,8 @@ TR_PRIVACY = {
             "- Apple App Store ve Google Play uygulama içi satın alma, yenileme, iptal ve iadeleri işler. RevenueCat, hak durumunu cihazlar arasında doğrulamak için doğrulanmış Mizan kullanıcı kimliğini ve mağaza, ürün ve abonelik olayı verilerini alır.",
             "- Google ile girişi seçerseniz kimlik verilerini Google işler.",
             "- Netlify genel web sitesini, Render arka uç API’sini barındırır; Neon ise PostgreSQL veritabanını sağlar. Bu altyapı sağlayıcıları Mizan’ı işletmek ve korumak için gereken istek, hesap ve hizmet verilerini işler.",
+            "- Resend \u2014 işlemsel e-postaları (e-posta doğrulama ve şifre sıfırlama) gönderir. E-posta adresinizi ve mesaj içeriğini alır.",
+            "Yalnızca hesabınızın çalışması için gerekli e-postaları göndeririz. Pazarlama e-postası göndermeyiz.",
             "Mizan, yasal zorunluluk halinde veya kullanıcıları, hizmeti ya da hakları korumak için bilgi açıklayabilir; veri brokerları veya reklamverenlerle paylaşmaz.",
         ]),
         ("Güvenlik ve silme", [

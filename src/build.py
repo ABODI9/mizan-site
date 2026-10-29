@@ -60,7 +60,7 @@ MOVED_PAGES = {"pricing": ("pricing", "pricing"), "support": ("support", "suppor
 # page; site.js does the scroll and keeps the address bar). slug -> element id.
 SECTIONS = {"pricing": "pricing", "features": "features", "ai-coach": "ai",
             "support": "support", "download": "download"}
-NOINDEX_PAGES = ["account", "billing/success", "billing/cancel"]
+NOINDEX_PAGES = ["account", "billing/success", "billing/cancel", "forgot-password", "reset-password", "verify-email"]
 PRICES = [  # tier index -> (monthly, yearly)
     (None, None), (4.99, 39.99), (7.99, 64.99), (12.99, 99.99),
 ]
@@ -212,6 +212,7 @@ def data_island(L, level, extra=None):
             "signup": url(L, "signup"), "account": url(L, "account"),
             "delete": url(L, "delete-account"), "support": section_url(L, "support"),
             "success": url(L, "billing/success"),
+            "forgot": url(L, "forgot-password"),
         },
     }}
     if PADDLE and level == "full":
@@ -593,7 +594,8 @@ def auth_page(L, mode):
              f'<button type="submit" data-submit data-label="{esc(d["submit"])}" data-working="{esc(a["working"])}" '
              f'class="w-full rounded-lg bg-primary-strong px-4 py-2.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-60">{esc(d["submit"])}</button>'
              f'</form>'
-             + (f'<p class="mt-3 text-sm text-muted">{fill(d["consent"], L)}</p>' if mode == "signup" else "") +
+             + (f'<p class="mt-3 text-sm text-muted">{fill(d["consent"], L)}</p>' if mode == "signup" else
+                f'<p class="mt-3 text-sm"><a href="{url(L, "forgot-password")}" class="text-primary hover:underline">{esc(a["forgot_link"])}</a></p>') +
              f'<div data-auth-status class="mt-5" role="status" aria-live="polite"></div>'
              f'{trial}'
              f'<p class="mt-6 text-sm text-muted">{esc(d["alt"])} <a href="{url(L, other)}" data-carry-intent class="text-primary hover:underline">{esc(d["alt_link"])}</a></p>'
@@ -602,6 +604,30 @@ def auth_page(L, mode):
     body = f'<div class="mx-auto max-w-md px-4 py-14 sm:px-6 sm:py-20">{inner}</div>'
     return head(L, mode, d["title"], d["desc"], data="full") + header(L, mode) + body + footer(L)
 
+
+def password_page(L, kind):
+    """forgot-password, reset-password and verify-email. The reset/verify token
+    arrives in the URL fragment (#token=...), which never reaches the server or a
+    Referer header; site.js reads it and clears it. Nothing here auto-submits."""
+    a = L["auth"]; d = a[kind]
+    page = {"forgot": "forgot-password", "reset": "reset-password", "verify": "verify-email"}[kind]
+    err = '<div data-form-error class="hidden rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm" role="alert"></div>'
+    btn = (f'<button type="submit" data-submit data-label="{esc(d["submit"])}" data-working="{esc(a["working"])}" '
+           f'class="w-full rounded-lg bg-primary-strong px-4 py-2.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-60">{esc(d["submit"])}</button>')
+    if kind == "forgot":
+        fields = field("email", "email", a["email"], ac="email")
+    elif kind == "reset":
+        fields = (field("password", "password", d["new_password"], ac="new-password", hint=a["password_hint"])
+                  + field("password2", "password", d["confirm_password"], ac="new-password"))
+    else:
+        fields = ""
+    inner = (f'<h1 class="text-3xl font-bold tracking-tight">{esc(d["h1"])}</h1>'
+             f'<p class="mt-3 text-muted">{esc(d["sub"])}</p>'
+             f'<form data-pw-form novalidate class="mt-8 space-y-5">{fields}{err}{btn}</form>'
+             f'<div data-pw-status class="mt-5" role="status" aria-live="polite"></div>'
+             f'{nojs_note(L)}')
+    body = f'<div data-pw-page="{kind}" class="mx-auto max-w-md px-4 py-14 sm:px-6 sm:py-20">{inner}</div>'
+    return head(L, page, d["title"], d["desc"], noindex=True, data="full") + header(L, page) + body + footer(L)
 
 def account_page(L):
     ac = L["account"]
@@ -645,11 +671,23 @@ def account_page(L):
                   f'<p class="mt-2 text-muted">{esc(ac["delete_p"])}</p>'
                   f'<a href="{url(L, "delete-account")}" class="mt-5 inline-flex rounded-lg border border-red-500/50 px-4 py-2.5 font-semibold text-red-600 hover:bg-red-500/10 dark:text-red-400">{esc(ac["delete_btn"])}</a>',
                   "", "border-red-500/30")
+    security = card(f'<h2 class="text-xl font-semibold">{esc(ac["security_h"])}</h2>'
+                    f'<form data-pw-change class="hidden mt-4 space-y-4" novalidate><h3 class="font-semibold">{esc(ac["pw_h"])}</h3>'
+                    + field("current_password", "password", ac["pw_current"], ac="current-password")
+                    + field("new_password", "password", ac["pw_new"], ac="new-password", hint=L["auth"]["password_hint"])
+                    + field("new_password2", "password", ac["pw_confirm"], ac="new-password")
+                    + f'<div data-form-error class="hidden rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm" role="alert"></div>'
+                    f'<button type="submit" data-submit data-label="{esc(ac["pw_submit"])}" data-working="{esc(L["auth"]["working"])}" class="rounded-lg bg-primary-strong px-4 py-2.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-60">{esc(ac["pw_submit"])}</button></form>'
+                    f'<div data-pw-status class="mt-4" role="status" aria-live="polite"></div>'
+                    f'<p class="mt-5 text-muted">{esc(ac["logout_all_p"])}</p>'
+                    f'<button type="button" data-logout-all data-confirm="{esc(ac["logout_all_confirm"])}" class="mt-3 rounded-lg border border-line bg-bg px-4 py-2.5 font-semibold hover:border-muted disabled:opacity-60">{esc(ac["logout_all_btn"])}</button>'
+                    f'<div data-logout-status class="mt-4" role="status" aria-live="polite"></div>',
+                    "data-security-card")
     body = (f'<div data-account class="mx-auto max-w-2xl px-4 py-14 sm:px-6 sm:py-20">'
             f'<h1 class="text-4xl font-bold tracking-tight">{esc(ac["h1"])}</h1>'
             f'<p data-account-loading class="mt-8 text-muted">{esc(ac["loading"])}</p>'
             f'<div data-account-status class="mt-8" role="status" aria-live="polite"></div>'
-            f'<div data-account-body class="hidden mt-8 space-y-5">{ident}{plan_card}{activating}{no_plan}{manage}{store}{usage}{delete}</div>'
+            f'<div data-account-body class="hidden mt-8 space-y-5">{ident}{plan_card}{activating}{no_plan}{manage}{store}{usage}{security}{delete}</div>'
             f'{nojs_note(L)}</div>')
     return (head(L, "account", ac["title"], ac["desc"], noindex=True, data="full")
             + header(L, "account") + body + footer(L))
@@ -940,6 +978,9 @@ def main():
         write(f"{L['code']}/delete-account/index.html", delete_page(L))
         write(f"{L['code']}/login/index.html", auth_page(L, "login"))
         write(f"{L['code']}/signup/index.html", auth_page(L, "signup"))
+        write(f"{L['code']}/forgot-password/index.html", password_page(L, "forgot"))
+        write(f"{L['code']}/reset-password/index.html", password_page(L, "reset"))
+        write(f"{L['code']}/verify-email/index.html", password_page(L, "verify"))
         write(f"{L['code']}/account/index.html", account_page(L))
         write(f"{L['code']}/billing/success/index.html", billing_success(L))
         write(f"{L['code']}/billing/cancel/index.html", billing_cancel(L))
