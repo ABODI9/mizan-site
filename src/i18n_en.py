@@ -206,7 +206,7 @@ EN = {
             "alt": "Already have an account?",
             "alt_link": "Sign in",
             "trial_note": "Every new account starts with a free 7-day trial. No card needed to try.",
-            "consent": "By creating an account, you confirm you are at least 18 years old and agree to the {terms_link} and {privacy_link}.",
+            "consent": "By creating an account, you confirm you are at least 16 years old (and have a parent's or guardian's permission if you are under 18) and agree to the {terms_link} and {privacy_link}.",
         },
         "continue_plan": "Next step: checkout for {plan}, {period}.",
         "forgot_link": "Forgot password?",

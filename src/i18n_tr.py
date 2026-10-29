@@ -206,7 +206,7 @@ TR = {
             "alt": "Zaten hesabınız var mı?",
             "alt_link": "Oturum açın",
             "trial_note": "Her yeni hesap 7 günlük ücretsiz denemeyle başlar. Denemek için kart gerekmez.",
-            "consent": "Hesap oluşturarak en az 18 yaşında olduğunuzu ve {terms_link} ile {privacy_link}'nı kabul ettiğinizi onaylarsınız.",
+            "consent": "Hesap oluşturarak en az 16 yaşında olduğunuzu (18 yaşından küçükseniz ebeveyninizin veya vasinizin izniyle) ve {terms_link} ile {privacy_link}'nı kabul ettiğinizi onaylarsınız.",
         },
         "continue_plan": "Sonraki adım: {plan} planı için ödeme, {period}.",
         "forgot_link": "Parolanızı mı unuttunuz?",

@@ -67,7 +67,7 @@ EN_PRIVACY = {
             "- **Everywhere else:** you can use the same rights above by contacting {email}.",
         ]),
         ("Children", [
-            "Mizan is intended for adults aged 18 and over. We do not knowingly collect personal data from anyone under 18. If we learn that an account belongs to someone under 18, we will delete the account and its data.",
+            "Mizan is intended for people aged 16 and over. We do not knowingly collect personal data from anyone under 16. If we learn that an account belongs to someone under 16, we will delete the account and its data. Users aged 16 and 17 should use Mizan with the knowledge of a parent or legal guardian.",
         ]),
         ("Changes and contact", [
             "This policy may change as Mizan changes. The effective date appears above, and material changes will be communicated where required.",
@@ -136,7 +136,7 @@ AR_PRIVACY = {
             "- **الولايات المتحدة:** لا نبيع معلوماتك الشخصية ولا نشاركها لأغراض الإعلانات السلوكية.",
             "- **بقية الدول:** يمكنك ممارسة الحقوق نفسها المذكورة أعلاه بمراسلة {email}.",
         ]),
-        ("الأطفال", ["ميزان مخصص للبالغين من عمر 18 عامًا فأكثر. لا نجمع عن علم أي بيانات شخصية ممن تقل أعمارهم عن 18 عامًا. وإذا علمنا أن حسابًا يعود لشخص دون 18 عامًا، فسنحذف الحساب وبياناته." ]),
+        ("الأطفال", ["ميزان مخصص لمن تبلغ أعمارهم 16 عامًا فأكثر. لا نجمع عن علم أي بيانات شخصية ممن تقل أعمارهم عن 16 عامًا، وإذا علمنا أن حسابًا يعود لشخص دون 16 عامًا فسنحذف الحساب وبياناته. وينبغي لمن تبلغ أعمارهم 16 و17 عامًا استخدام ميزان بعلم أحد الوالدين أو الولي القانوني." ]),
         ("التغييرات والتواصل", ["قد تتغير هذه السياسة مع تغير ميزان. يظهر تاريخ السريان أعلاه، وسنبلغ عن التغييرات الجوهرية حيث يلزم.", "لأسئلة الخصوصية وطلبات الحذف والشكاوى: {email}."]),
     ],
 }
@@ -191,7 +191,7 @@ TR_PRIVACY = {
             "- **Amerika Birleşik Devletleri:** Kişisel bilgilerinizi satmayız ve davranışsal reklamcılık amacıyla paylaşmayız.",
             "- **Diğer tüm ülkeler:** Yukarıdaki hakları {email} adresine yazarak kullanabilirsiniz.",
         ]),
-        ("Çocuklar", ["Mizan, 18 yaş ve üzeri yetişkinlere yöneliktir. 18 yaşından küçük kişilerden bilerek kişisel veri toplamayız. Bir hesabın 18 yaşından küçük birine ait olduğunu öğrenirsek, hesabı ve verilerini sileriz."]),
+        ("Çocuklar", ["Mizan, 16 yaş ve üzeri kişilere yöneliktir. 16 yaşından küçük kişilerden bilerek kişisel veri toplamayız; bir hesabın 16 yaşından küçük birine ait olduğunu öğrenirsek hesabı ve verilerini sileriz. 16 ve 17 yaşındaki kullanıcıların Mizan'ı ebeveynlerinin veya yasal vasilerinin bilgisi dahilinde kullanmaları gerekir."]),
         ("Değişiklikler ve iletişim", ["Mizan değiştikçe bu politika değişebilir. Yürürlük tarihi yukarıdadır; önemli değişiklikler gerektiğinde bildirilir.", "Gizlilik soruları, silme talepleri ve şikâyetler: {email}."]),
     ],
 }
