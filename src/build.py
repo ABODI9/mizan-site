@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generates the static Mizan site into ../site from the three i18n dictionaries.
 Run:  python3 src/build.py   (then compile Tailwind, see README)"""
-import os, sys, shutil, html, json
+import os, re, sys, shutil, html, json
 sys.path.insert(0, os.path.dirname(__file__))
 from i18n_en import EN
 from i18n_ar import AR
@@ -50,7 +50,8 @@ STORE_LINKS = {                           # swap these two lines to change every
 OUT = os.environ.get("MIZAN_OUT") or os.path.join(os.path.dirname(__file__), "..", "site")
 LANGS = [EN, AR, TR]                      # EN first = default language
 # Pricing and support are sections of the home page (#pricing, #support), not pages.
-PAGES = ["", "privacy", "terms", "delete-account", "login", "signup"]
+PAGES = ["", "privacy-policy", "terms", "delete-account", "login", "signup"]
+LEGACY_PAGES = ["privacy"]
 # Their old URLs stay alive as tiny redirect stubs: store listings, Paddle's payment
 # link and old emails may still point at them. old page -> (anchor, nav key)
 MOVED_PAGES = {"pricing": ("pricing", "pricing"), "support": ("support", "support")}
@@ -344,9 +345,9 @@ def footer(L):
 <p class="mt-3 max-w-xs text-sm text-muted">{esc(f["tagline"])}</p>
 <p class="mt-4 text-sm text-muted">{esc(f["email"])}: <a href="mailto:{EMAIL}" class="text-primary hover:underline" dir="ltr">{EMAIL}</a></p></div>
 {col(f["product"], [(home + "#pricing", L["nav"]["pricing"]), (home + "#features", L["nav"]["features"]), (url(L, "account"), f["account"]), (home + "#support", f["support"])])}
-{col(f["legal"], [(url(L, "privacy"), f["privacy"]), (url(L, "terms"), f["terms"]), (url(L, "delete-account"), f["delete"])])}
+{col(f["legal"], [(url(L, "privacy-policy"), f["privacy"]), (url(L, "terms"), f["terms"]), (url(L, "delete-account"), f["delete"])])}
 </div>
-<div class="border-t border-line"><div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted sm:px-6"><p>{esc(f["rights"])}</p>{lang_switcher(L, "", "text-xs")}</div></div>
+<div class="border-t border-line"><div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted sm:px-6"><div><p>{esc(f["rights"])}</p><p class="mt-1 max-w-2xl">{esc(f["ip_notice"])}</p></div>{lang_switcher(L, "", "text-xs")}</div></div>
 </footer>
 <script src="/assets/site.js" defer></script>
 </body>
@@ -387,7 +388,7 @@ def home(L):
     ai_items = "".join(f'<li class="flex gap-4"><span class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">{icon(ic, "h-5 w-5")}</span><div><h3 class="font-semibold">{esc(t)}</h3><p class="mt-1 text-muted">{esc(d)}</p></div></li>' for (t, d), ic in zip(h["ai"], ai_icons))
     ai = section("ai", f'<div class="grid gap-10 md:grid-cols-5"><div class="md:col-span-2"><h2 class="text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["ai_h2"])}</h2><p class="mt-3 text-lg text-muted">{esc(h["ai_sub"])}</p><p class="mt-6 rounded-xl border border-line bg-surface p-4 text-sm text-muted">{esc(h["ai_note"])}</p></div><ul class="grid gap-6 sm:grid-cols-2 md:col-span-3">{ai_items}</ul></div>', "border-y border-line bg-surface/40")
     langs = section("languages", f'<div class="grid items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["langs_h2"])}</h2><p class="mt-3 text-lg text-muted">{esc(h["langs_p"])}</p></div><div class="grid grid-cols-3 gap-3 text-center"><div class="rounded-2xl border border-line bg-surface p-5"><div class="text-2xl font-semibold" lang="ar" dir="rtl">العربية</div><div class="mt-1 text-xs text-muted" dir="ltr">RTL</div></div><div class="rounded-2xl border border-line bg-surface p-5"><div class="text-2xl font-semibold" lang="en">English</div><div class="mt-1 text-xs text-muted" dir="ltr">LTR</div></div><div class="rounded-2xl border border-line bg-surface p-5"><div class="text-2xl font-semibold" lang="tr">Türkçe</div><div class="mt-1 text-xs text-muted" dir="ltr">LTR</div></div></div></div>')
-    priv = section("privacy", f'<div class="mx-auto max-w-3xl text-center"><div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15 text-accent">{icon("shield")}</div><h2 class="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["privacy_h2"])}</h2><p class="mt-4 text-lg text-muted">{esc(h["privacy_p"])}</p><a href="{url(L, "privacy")}" class="mt-6 inline-flex items-center gap-2 font-medium text-primary hover:underline">{esc(h["privacy_link"])}{arrow()}</a></div>', "border-t border-line")
+    priv = section("privacy", f'<div class="mx-auto max-w-3xl text-center"><div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15 text-accent">{icon("shield")}</div><h2 class="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["privacy_h2"])}</h2><p class="mt-4 text-lg text-muted">{esc(h["privacy_p"])}</p><a href="{url(L, "privacy-policy")}" class="mt-6 inline-flex items-center gap-2 font-medium text-primary hover:underline">{esc(h["privacy_link"])}{arrow()}</a></div>', "border-t border-line")
     badges_cta = store_badges(L, "cta").replace(' id="download"', "")
     cta = section("cta", f'<div class="rounded-3xl border border-line bg-gradient-to-br from-surface to-bg p-8 text-center sm:p-14"><h2 class="text-3xl font-bold tracking-tight sm:text-4xl">{esc(h["cta_h2"])}</h2><p class="mx-auto mt-3 max-w-xl text-lg text-muted">{esc(h["cta_p"])}</p><div class="mt-8 flex justify-center">{badges_cta}</div><a href="#pricing" class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">{esc(h["pricing_link"])}{arrow()}</a></div>')
     # One page: download (hero) -> pricing -> the rest. "full" because the pricing
@@ -482,10 +483,12 @@ def moved_page(L, anchor, nav_key):
 
 # ---------- Legal / text pages ----------
 def fill(s, L):
-    return (esc(s).replace("{email}", f'<a href="mailto:{EMAIL}" class="text-primary hover:underline" dir="ltr">{EMAIL}</a>')
+    # **text** -> <strong>, used by the legal pages for run-in bullet labels.
+    return (re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", esc(s)).replace("{email}", f'<a href="mailto:{EMAIL}" class="text-primary hover:underline" dir="ltr">{EMAIL}</a>')
             .replace("{date}", esc(L["date"]))
             .replace("{delete_link}", f'<a href="{url(L, "delete-account")}" class="text-primary hover:underline">{esc(L["footer"]["delete"])}</a>')
-            .replace("{privacy_link}", f'<a href="{url(L, "privacy")}" class="text-primary hover:underline">{esc(L["footer"]["privacy"])}</a>')
+            .replace("{privacy_link}", f'<a href="{url(L, "privacy-policy")}" class="text-primary hover:underline">{esc(L["footer"]["privacy"])}</a>')
+            .replace("{terms_link}", f'<a href="{url(L, "terms")}" class="text-primary hover:underline">{esc(L["footer"]["terms"])}</a>')
             .replace("{account_link}", f'<a href="{url(L, "account")}" class="text-primary hover:underline">{esc(L["footer"]["account"])}</a>')
             .replace("{pricing_link}", f'<a href="{section_url(L, "pricing")}" class="text-primary hover:underline">{esc(L["nav"]["pricing"])}</a>'))
 
@@ -505,10 +508,10 @@ def doc_shell(L, page, d, inner, data="min"):
             + (f'<p class="mt-2 text-sm text-muted">{fill(d["updated"], L)}</p>' if "updated" in d else "")
             + f'<div class="doc mt-8 space-y-5 text-[1.0625rem] leading-relaxed">{inner}</div></article>' + footer(L))
 
-def legal(L, page):
+def legal(L, page, route=None):
     d = L[page]
     inner = f"<p>{fill(d['intro'], L)}</p>" + "".join(f'<section><h2 class="mb-3 mt-10 text-2xl font-semibold">{esc(h)}</h2><div class="space-y-4">{blocks(items, L)}</div></section>' for h, items in d["sections"])
-    return doc_shell(L, page, d, inner)
+    return doc_shell(L, route or page, d, inner)
 
 def delete_web_panel(L):
     """The signed-in delete flow: reveal -> tick -> confirm -> DELETE /auth/me.
@@ -590,6 +593,7 @@ def auth_page(L, mode):
              f'<button type="submit" data-submit data-label="{esc(d["submit"])}" data-working="{esc(a["working"])}" '
              f'class="w-full rounded-lg bg-primary-strong px-4 py-2.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-60">{esc(d["submit"])}</button>'
              f'</form>'
+             + (f'<p class="mt-3 text-sm text-muted">{fill(d["consent"], L)}</p>' if mode == "signup" else "") +
              f'<div data-auth-status class="mt-5" role="status" aria-live="polite"></div>'
              f'{trial}'
              f'<p class="mt-6 text-sm text-muted">{esc(d["alt"])} <a href="{url(L, other)}" data-carry-intent class="text-primary hover:underline">{esc(d["alt_link"])}</a></p>'
@@ -840,7 +844,7 @@ CSP = (f"default-src 'self'; script-src {_SCRIPT_SRC}; style-src {_STYLE_SRC}; "
        + "form-action 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
 
 def sitemap():
-    today = "2026-09-05"; out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
+    today = "2026-10-22"; out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
     for p in PAGES:
         for L in LANGS:
             alts = "".join(f'<xhtml:link rel="alternate" hreflang="{X["code"]}" href="{DOMAIN}{lang_url(X, p)}"/>' for X in LANGS) + f'<xhtml:link rel="alternate" hreflang="x-default" href="{DOMAIN}{lang_url(AR, p)}"/>'
@@ -888,7 +892,7 @@ VERCEL = """{
 """.replace("__CSP__", CSP)
 
 # Every page that has a language-free URL (and so needs a rewrite and a fallback).
-CLEAN_PAGES = list(dict.fromkeys(PAGES + NOINDEX_PAGES + list(MOVED_PAGES) + list(SECTIONS)))
+CLEAN_PAGES = list(dict.fromkeys(PAGES + LEGACY_PAGES + NOINDEX_PAGES + list(MOVED_PAGES) + list(SECTIONS)))
 
 def redirects():
     """Netlify: answer /privacy/ with /ar/privacy/ (or /tr/...) when the visitor's
@@ -930,7 +934,8 @@ def main():
         write(f"{L['code']}/index.html", home(L))
         for old, (anchor, nav_key) in MOVED_PAGES.items():
             write(f"{L['code']}/{old}/index.html", moved_page(L, anchor, nav_key))
-        write(f"{L['code']}/privacy/index.html", legal(L, "privacy"))
+        write(f"{L['code']}/privacy-policy/index.html", legal(L, "privacy", "privacy-policy"))
+        write(f"{L['code']}/privacy/index.html", legal(L, "privacy", "privacy-policy"))
         write(f"{L['code']}/terms/index.html", legal(L, "terms"))
         write(f"{L['code']}/delete-account/index.html", delete_page(L))
         write(f"{L['code']}/login/index.html", auth_page(L, "login"))

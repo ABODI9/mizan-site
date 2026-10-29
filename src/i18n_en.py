@@ -1,11 +1,14 @@
+from privacy_content import EN_PRIVACY
+from terms_content import EN_TERMS
+
 EN = {
-    "code": "en", "dir": "ltr", "native": "English", "locale": "en_US", "date": "5 September 2026",
+    "code": "en", "dir": "ltr", "native": "English", "locale": "en_US", "date": "22 October 2026",
     "nav": {"features": "Features", "ai": "AI coach", "pricing": "Pricing", "support": "Support", "download": "Download", "menu": "Menu", "home": "Mizan home", "signin": "Sign in", "account": "Account"},
     "switcher": "Language", "theme": "Switch between dark and light theme", "skip": "Skip to content",
     "footer": {
         "tagline": "Personal finance in Arabic, English and Turkish.",
         "privacy": "Privacy Policy", "terms": "Terms of Service", "support": "Support", "delete": "Delete Account",
-        "email": "Support email", "rights": "© 2026 Mizan. All rights reserved.", "legal": "Legal", "product": "Product", "account": "Your account",
+        "email": "Support email", "rights": "© 2026 Mizan. All rights reserved.", "ip_notice": "Original Mizan software, designs, branding, and content are protected by applicable intellectual property laws.", "legal": "Legal", "product": "Product", "account": "Your account",
     },
     "stores": {"google": "Get it on", "google2": "Google Play", "apple": "Download on the", "apple2": "App Store", "soon": "Coming soon"},
     "home": {
@@ -79,10 +82,11 @@ EN = {
         "sections": [
             ("What we collect", [
                 "Account data: your name and email address, used to create and secure your account and to contact you about it.",
-                "Sign-in data: if you sign in with email and password, we store a salted hash of your password, never the password itself. If you use Google Sign-In, Google provides us your name, email address and a unique account identifier. We do not receive your Google password.",
-                "Financial data you enter yourself: transactions, budgets, savings goals, accounts, assets, categories, currencies and manual exchange rates, plus notes or receipt images you attach. This is the core of the app and is stored so it can be shown back to you on any device you sign in from.",
-                "Subscription status: whether you have an active trial or paid plan, which plan it is, and its renewal date. For subscriptions bought on this website we receive this from Stripe; for subscriptions bought inside the app we receive it from the app store through RevenueCat (see below). We never see or store your card number.",
-                "Basic technical data: app version, device type and operating system version, and crash reports without personal content, used only to keep the app working.",
+                "Sign-in data: if you sign in with email and password, we store a salted password hash, not the password itself. If you choose Google Sign-In, Google provides the profile information needed to identify your account, including your name and email address. We do not receive your Google password.",
+                "Financial data you provide: transactions, budgets, savings goals, accounts, assets, recurring subscriptions, categories, currencies, exchange-rate preferences and notes. Signed-in users can synchronize these records with our server. Guest data and certain preferences, inbox items, AI chat history and AI memory are stored locally on the device.",
+                "Content you submit for optional features: text shared with Mizan, AI-coach questions and context, and receipt images you select. Receipt images are sent for analysis when you request it; Mizan does not store the original image in its server database. Extracted transaction details are stored only if you choose to save them.",
+                "Subscription and purchase data: plan, provider, product or subscription identifier, payment or entitlement status, and relevant renewal or expiration dates. We receive this from the website payment provider or, when in-app purchases are enabled, from Apple or Google through RevenueCat. Mizan does not receive or store complete card numbers.",
+                "Service records: our server records AI-feature usage counts, model and token totals, estimated processing cost and request type for quota and service operations. It does not store the content of AI prompts or responses in that usage log. Hosting providers may also process ordinary request metadata such as IP address, request time and user agent in security and operational logs.",
             ]),
             ("What we do not collect", [
                 "- No bank credentials, and no linking to bank accounts. Mizan does not connect to any bank, card issuer or open-banking provider. Every transaction is entered, imported or scanned by you.",
@@ -95,28 +99,30 @@ EN = {
             ("Why we use your data", [
                 "To run the app: store and sync the data you enter, show budgets and reports, and calculate forecasts.",
                 "To provide the AI coach: answer your questions, scan receipts and produce reviews and forecasts, as described in the next section.",
-                "To manage your subscription and respond to support requests.",
-                "To keep the service secure and fix bugs.",
-                "We do not use your data to build advertising profiles, and we do not use your financial data to train AI models.",
+                "To authenticate accounts, manage subscriptions, enforce plan limits and respond to support requests.",
+                "To keep the service secure, prevent abuse, diagnose failures and operate the service.",
+                "We do not use your data for advertising or sell it. Mizan does not use your financial data to train its own AI model.",
             ]),
             ("Third parties and why they are involved", [
                 "We share data only with the providers needed to run Mizan, and only the minimum each one needs.",
-                "- OpenAI (OpenAI, L.L.C.): powers the AI coach. When you ask the coach a question, scan a receipt or request a review or forecast, the relevant text (your question and the transaction, budget or goal data needed to answer it, or the receipt image) is sent to OpenAI’s API for processing. We send data only when you use an AI feature, never in the background. We use OpenAI’s API under terms that state that API data is not used to train their models. Your name and email are not included in these requests.",
-                "- Stripe (Stripe, Inc.): processes card payments made on this website. When you subscribe here we send you to Stripe’s own checkout page, where you enter your card details directly with Stripe. Stripe receives your email address and the plan you chose, and tells us whether the payment succeeded. Your card number never reaches Mizan’s servers. Stripe handles payment data as an independent controller under its own privacy policy.",
-                "- RevenueCat (RevenueCat, Inc.): processes in-app subscriptions. RevenueCat receives an anonymous app-user identifier and your purchase and renewal status from the app store so we can unlock the right plan.",
-                "- Apple App Store and Google Play: handle payment, billing, renewals and refunds for subscriptions bought inside the app, under their own privacy policies. We never receive your payment details.",
-                "- Hosting and database provider: your account and financial data are stored in a database operated by a cloud hosting provider on our behalf. The provider is bound by contract to process data only on our instructions.",
-                "- Google (Google Sign-In): only if you choose to sign in with Google.",
+                "- OpenAI: processes the text, relevant financial context or receipt content needed to perform an AI feature that you request. Mizan sends these requests through the OpenAI API and does not include your account name or email in the AI payload generated by the backend. OpenAI handles API data under its own service terms and privacy commitments.",
+                "- Paddle: the current website checkout provider and Merchant of Record. Paddle receives your email, chosen product and the information needed to process payment, tax, invoicing, renewals, refunds and its customer portal. Payment-card details are entered directly in Paddle's checkout and do not reach Mizan's servers.",
+                "- Stripe: the backend retains a Stripe website-checkout integration and may process website subscriptions when that checkout is enabled. Stripe receives your email, selected plan and payment information entered on its hosted pages. Complete card details do not reach Mizan's servers.",
+                "- RevenueCat, Apple App Store and Google Play: when in-app purchases are enabled, they process store purchase identifiers, subscription status, renewals, cancellations and refunds. RevenueCat uses Mizan's account identifier to synchronize access across devices. Apple and Google handle store payment details under their own policies.",
+                "- Google: processes authentication information if you choose Google Sign-In.",
+                "- Netlify, Render and Neon: Netlify serves the public website, Render hosts the API, and Neon provides the PostgreSQL database used by the API. They process or store data as infrastructure providers.",
+                "- Your browser or operating-system provider: if you choose browser voice input, the browser's speech-recognition service may process the audio. Device notifications are scheduled locally by the app; the code does not register a remote push-notification token with Mizan.",
                 "We do not share data with advertisers, data brokers or “partners” for marketing. If we ever add a provider that handles your data, this policy will be updated first.",
             ]),
             ("Storage, security and retention", [
                 "Data is encrypted in transit using TLS between the app, this website and our servers. Stored data is protected by access controls and is encrypted at rest by our hosting provider.",
-                "We keep your data for as long as your account exists. When you delete your account, your account record and all financial data in it are permanently deleted from our production database within 30 days; encrypted backups are overwritten within a further 30 days. Aggregate, anonymous usage counts that cannot identify you may be kept.",
+                "Server account and financial records are kept while your account exists. When authenticated account deletion succeeds, the account and its related records are deleted from the production database. Billing providers, app stores, infrastructure logs and support correspondence may be retained separately under their own policies or where needed for security, fraud prevention, accounting or legal obligations.",
+                "Data stored locally on your device remains there until it is cleared by the app's deletion or reset controls, you clear the app's storage, or you uninstall the app. Signing out alone does not erase locally stored financial or chat data.",
                 "Data may be stored and processed on servers outside your country of residence. Where required, we use standard contractual protections for such transfers.",
             ]),
             ("Your rights and choices", [
-                "- Export: you can export all of your data at any time from Settings > Data > Export (PDF, Excel or CSV).",
-                "- Delete: you can delete your account and everything in it from Settings > Account > Delete account. See the {delete_link} page for details.",
+                "- Export: you can export your financial records from Settings > Data > Export (PDF, Excel or CSV).",
+                "- Delete: signed-in users can delete their server account and associated server records from Settings > Account > Delete account. The public {delete_link} page also provides a website deletion path and support contact. Cancel subscriptions with the provider identified in your account before deletion so billing is not left active.",
                 "- Correct: you can edit any data you entered directly in the app.",
                 "- Access, portability, objection and complaint: depending on where you live (for example under the GDPR, UK GDPR, or similar laws), you may have additional rights. Email {email} to exercise any of them; we respond within 30 days.",
                 "You can use most of the app without the AI coach. AI features run only when you ask for them.",
@@ -128,7 +134,7 @@ EN = {
                 "We may update this policy as the app changes. Material changes will be announced in the app before they take effect. The date at the top shows the current version.",
             ]),
             ("Contact", [
-                "Questions, requests and complaints: {email}.",
+                "Mizan is the service identified by this policy. Privacy questions, deletion requests and complaints: {email}.",
             ]),
         ],
     },
@@ -190,15 +196,15 @@ EN = {
         "h1": "Delete your account", "updated": "Last updated: {date}",
         "intro": "You can delete your Mizan account, and all the financial data in it, at any time. You do not need to contact us to do so.",
         "in_app_h": "From inside the app",
-        "steps": ["Open Mizan and sign in.", "Go to Settings > Account > Delete account.", "Read the notice, then confirm with your password (or your Google sign-in).", "Your account is closed immediately and you are signed out on all devices."],
+        "steps": ["Open Mizan and sign in.", "Go to Settings > Account > Delete account.", "Read the warning and confirm permanent deletion.", "When the request succeeds, the account and its related records are deleted from the production database and the app signs you out."],
         "email_h": "If you cannot access the app",
-        "email_p": "Send an email to {email} from the email address registered to your account, with the subject “Delete my account”. We verify the request by replying to that address and process it within 7 days.",
+        "email_p": "Send an email to {email} from the email address registered to your account, with the subject “Delete my account”. We will reply to that address to verify and process the request.",
         "what_h": "What is deleted",
-        "what": ["Your account (name, email, sign-in credentials).", "All financial data: transactions, budgets, savings goals, accounts, assets, categories, notes and receipt images.", "AI coach history and any generated reviews or forecasts.", "Your subscription record on our side. Deleting your account does not cancel billing by itself: cancel a website subscription first from your {account_link}, or a store subscription in the App Store or Google Play."],
+        "what": ["Your server account (name, email and sign-in credential record).", "Server financial data associated with the account: transactions, budgets, savings goals, accounts, assets, recurring subscriptions and notes.", "Server-side AI usage records associated with the account. The app also clears its locally persisted financial, inbox and AI-chat state after successful in-app deletion.", "Your subscription record on our side. Before deleting, cancel a website subscription from your {account_link}, or a store subscription in the App Store or Google Play, so the payment provider does not continue billing."],
         "kept_h": "What is retained, and for how long",
-        "kept": ["Encrypted backups: deleted data may persist in backups for up to 30 days after removal from the production database, then is overwritten.", "Purchase records held by Apple, Google and RevenueCat under their own policies, as needed for accounting and fraud prevention. These contain no financial data you entered.", "Support emails you sent us, kept for up to 12 months for record keeping.", "Anonymous aggregate statistics that cannot identify you."],
+        "kept": ["Payment, tax, invoice and purchase records held by Paddle, Stripe, Apple, Google or RevenueCat under their policies and legal obligations.", "Security and infrastructure logs, backup copies and support correspondence may remain for the provider's normal retention period or while needed for security, fraud prevention, accounting, dispute handling or legal obligations.", "Data that has been irreversibly anonymized so it can no longer identify you may be retained."],
         "time_h": "How long it takes",
-        "time_p": "In-app deletion is immediate and irreversible; the data is removed from our production database within 30 days and from backups within a further 30 days. Email requests are processed within 7 days of verification.",
+        "time_p": "Authenticated in-app or website deletion removes the account and related records from the production database when the request succeeds. Email requests require verification before processing. Separate provider records and residual infrastructure copies follow the retention rules described above.",
         "web": {
             "h": "Delete your account now",
             "p": "You are signed in, so you can delete your account from here. This is permanent and cannot be undone.",
@@ -265,6 +271,7 @@ EN = {
             "alt": "Already have an account?",
             "alt_link": "Sign in",
             "trial_note": "Every new account starts with a free 7-day trial. No card needed to try.",
+            "consent": "By creating an account, you confirm you are at least 18 years old and agree to the {terms_link} and {privacy_link}.",
         },
         "continue_plan": "Next step: checkout for {plan}, {period}.",
         "errors": {
@@ -272,6 +279,7 @@ EN = {
             "password": "Your password must be at least 6 characters.",
             "network": "We could not reach Mizan. Check your connection and try again.",
             "retry": "Try again",
+            "account_exists_with_password": "An account with this email already exists. Please sign in with your email and password.",
         },
     },
     "account": {
@@ -373,3 +381,6 @@ EN = {
     },
     "redirect": {"title": "Mizan", "p": "Taking you to Mizan. Choose a language:"},
 }
+
+EN["privacy"] = EN_PRIVACY
+EN["terms"] = EN_TERMS

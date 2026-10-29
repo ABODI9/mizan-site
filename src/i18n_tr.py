@@ -1,11 +1,14 @@
+from privacy_content import TR_PRIVACY
+from terms_content import TR_TERMS
+
 TR = {
-    "code": "tr", "dir": "ltr", "native": "Türkçe", "locale": "tr_TR", "date": "5 Eylül 2026",
+    "code": "tr", "dir": "ltr", "native": "Türkçe", "locale": "tr_TR", "date": "22 Ekim 2026",
     "nav": {"features": "Özellikler", "ai": "Yapay zekâ koçu", "pricing": "Fiyatlar", "support": "Destek", "download": "İndir", "menu": "Menü", "home": "Mizan ana sayfa", "signin": "Oturum aç", "account": "Hesabım"},
     "switcher": "Dil", "theme": "Koyu ve açık tema arasında geçiş yap", "skip": "İçeriğe geç",
     "footer": {
         "tagline": "Arapça, İngilizce ve Türkçe kişisel finans.",
         "privacy": "Gizlilik Politikası", "terms": "Kullanım Koşulları", "support": "Destek", "delete": "Hesabı Sil",
-        "email": "Destek e-postası", "rights": "© 2026 Mizan. Tüm hakları saklıdır.", "legal": "Yasal", "product": "Ürün", "account": "Hesabım",
+        "email": "Destek e-postası", "rights": "© 2026 Mizan. Tüm hakları saklıdır.", "ip_notice": "Özgün Mizan yazılımı, tasarımları, markası ve içeriği yürürlükteki fikri mülkiyet yasalarıyla korunur.", "legal": "Yasal", "product": "Ürün", "account": "Hesabım",
     },
     "stores": {"google": "Şuradan edinin:", "google2": "Google Play", "apple": "Şuradan indirin:", "apple2": "App Store", "soon": "Yakında"},
     "home": {
@@ -80,9 +83,10 @@ TR = {
             ("Neleri topluyoruz", [
                 "Hesap verileri: hesabınızı oluşturmak, güvence altına almak ve hesabınızla ilgili sizinle iletişim kurmak için kullanılan adınız ve e-posta adresiniz.",
                 "Oturum açma verileri: e-posta ve parolayla oturum açıyorsanız parolanızın kendisini değil, tuzlanmış bir özetini (hash) saklarız. Google ile Oturum Açma kullanıyorsanız Google bize adınızı, e-posta adresinizi ve benzersiz bir hesap tanımlayıcısı verir. Google parolanızı almayız.",
-                "Kendi girdiğiniz finansal veriler: işlemler, bütçeler, tasarruf hedefleri, hesaplar, varlıklar, kategoriler, para birimleri ve manuel döviz kurları ile eklediğiniz notlar veya fiş görüntüleri. Uygulamanın özü budur ve oturum açtığınız her cihazda size gösterilebilmesi için saklanır.",
-                "Abonelik durumu: etkin bir deneme veya ücretli planınızın olup olmadığı, hangi plan olduğu ve yenilenme tarihi. Bu sitede satın alınan abonelikler için bunu Stripe'tan, uygulama içinde satın alınanlar için uygulama mağazasından RevenueCat aracılığıyla alırız (aşağıya bakın). Kart numaranızı asla görmez ve saklamayız.",
-                "Temel teknik veriler: uygulama sürümü, cihaz türü ve işletim sistemi sürümü ile kişisel içerik barındırmayan çökme raporları; yalnızca uygulamanın çalışır durumda kalması için kullanılır.",
+                "Sağladığınız finansal veriler: işlemler, bütçeler, tasarruf hedefleri, hesaplar, varlıklar, yinelenen abonelikler, kategoriler, para birimleri, kur tercihleri ve notlar. Oturum açan kullanıcılar bu kayıtları sunucumuzla eşitleyebilir. Misafir verileri ile bazı tercihler, işlem kutusu öğeleri, yapay zekâ sohbet geçmişi ve yapay zekâ belleği cihazda yerel olarak saklanır.",
+                "İsteğe bağlı özelliklere gönderdiğiniz içerik: Mizan ile paylaştığınız metin, yapay zekâ koçu soruları ve bağlamı ile seçtiğiniz fiş görüntüleri. Fiş görüntüsü yalnızca siz analiz istediğinizde gönderilir; Mizan özgün görüntüyü sunucu veritabanında saklamaz. Çıkarılan işlem ayrıntıları yalnızca kaydetmeyi seçerseniz saklanır.",
+                "Abonelik ve satın alma verileri: plan, sağlayıcı, ürün veya abonelik kimliği, ödeme ya da erişim durumu ve ilgili yenileme veya sona erme tarihleri. Bunları web ödeme sağlayıcısından veya uygulama içi satın alma etkinse RevenueCat aracılığıyla Apple ve Google'dan alırız. Mizan tam kart numaralarını almaz veya saklamaz.",
+                "Hizmet kayıtları: sunucumuz kota ve işletim amacıyla yapay zekâ kullanım sayıları, model, belirteç toplamları, tahmini işlem maliyeti ve istek türünü kaydeder. Bu kullanım kaydı soru veya yanıt içeriğini saklamaz. Barındırma sağlayıcıları güvenlik ve işletim günlüklerinde IP adresi, istek zamanı ve kullanıcı aracısı gibi olağan istek verilerini işleyebilir.",
             ]),
             ("Neleri toplamıyoruz", [
                 "- Banka kimlik bilgisi yok, banka hesabı bağlantısı yok. Mizan hiçbir bankaya, kart kuruluşuna veya açık bankacılık sağlayıcısına bağlanmaz. Her işlem sizin tarafınızdan girilir, içe aktarılır veya taranır.",
@@ -95,28 +99,30 @@ TR = {
             ("Verilerinizi neden kullanıyoruz", [
                 "Uygulamayı çalıştırmak için: girdiğiniz verileri saklamak ve eşitlemek, bütçeleri ve raporları göstermek, tahminleri hesaplamak.",
                 "Yapay zekâ koçunu sunmak için: sonraki bölümde açıklandığı gibi sorularınızı yanıtlamak, fiş taramak, değerlendirme ve tahmin üretmek.",
-                "Aboneliğinizi yönetmek ve destek taleplerinize yanıt vermek için.",
-                "Hizmeti güvende tutmak ve hataları düzeltmek için.",
-                "Verilerinizi reklam profili oluşturmak için kullanmayız; finansal verilerinizi yapay zekâ modellerini eğitmek için kullanmayız.",
+                "Hesapları doğrulamak, abonelikleri yönetmek, plan sınırlarını uygulamak ve destek taleplerini yanıtlamak için.",
+                "Hizmeti güvenli tutmak, kötüye kullanımı önlemek, arızaları teşhis etmek ve hizmeti işletmek için.",
+                "Verilerinizi reklam için kullanmaz veya satmayız. Mizan finansal verilerinizi kendi yapay zekâ modelini eğitmek için kullanmaz.",
             ]),
             ("Üçüncü taraflar ve neden dahil oldukları", [
                 "Verileri yalnızca Mizan'ı çalıştırmak için gereken sağlayıcılarla ve her birinin ihtiyaç duyduğu en az düzeyde paylaşırız.",
                 "- OpenAI (OpenAI, L.L.C.): yapay zekâ koçunu çalıştırır. Koça bir soru sorduğunuzda, bir fiş taradığınızda ya da bir değerlendirme veya tahmin istediğinizde ilgili metin (sorunuz ile yanıt için gereken işlem, bütçe veya hedef verileri ya da fiş görüntüsü) işlenmek üzere OpenAI API'sine gönderilir. Veriyi yalnızca bir yapay zekâ özelliğini kullandığınızda göndeririz; arka planda asla. OpenAI API'sini, API verilerinin modellerini eğitmek için kullanılmadığını belirten koşullar altında kullanırız. Adınız ve e-postanız bu isteklere dahil edilmez.",
-                "- Stripe (Stripe, Inc.): bu sitede yapılan kartlı ödemeleri işler. Buradan abone olduğunuzda sizi Stripe'ın kendi ödeme sayfasına yönlendiririz; kart bilgilerinizi doğrudan Stripe'a girersiniz. Stripe e-posta adresinizi ve seçtiğiniz planı alır ve ödemenin başarılı olup olmadığını bize bildirir. Kart numaranız hiçbir zaman Mizan sunucularına ulaşmaz. Stripe, ödeme verilerini kendi gizlilik politikası kapsamında bağımsız bir veri sorumlusu olarak işler.",
-                "- RevenueCat (RevenueCat, Inc.): uygulama içi abonelikleri işler. RevenueCat, doğru planı açabilmemiz için uygulama mağazasından anonim bir uygulama kullanıcı tanımlayıcısı ile satın alma ve yenileme durumunuzu alır.",
-                "- Apple App Store ve Google Play: uygulama içinde satın alınan aboneliklerin ödeme, faturalandırma, yenileme ve iade işlemlerini kendi gizlilik politikaları kapsamında yürütür. Ödeme bilgilerinizi asla almayız.",
-                "- Barındırma ve veritabanı sağlayıcısı: hesabınız ve finansal verileriniz, bizim adımıza bir bulut barındırma sağlayıcısı tarafından işletilen bir veritabanında saklanır. Sağlayıcı, verileri yalnızca talimatlarımız doğrultusunda işlemekle sözleşmeyle yükümlüdür.",
+                "- Paddle: mevcut web ödeme sağlayıcısı ve Kayıtlı Satıcıdır. E-posta adresinizi, seçilen ürünü ve ödeme, vergi, fatura, yenileme, iade ve müşteri portalı için gereken bilgileri alır. Kart bilgileri doğrudan Paddle ödeme sayfasına girilir ve Mizan sunucularına ulaşmaz.",
+                "- Stripe: sunucu Stripe web ödeme entegrasyonunu korur ve bu akış etkinleştirildiğinde web aboneliklerini işleyebilir. Stripe e-posta adresinizi, seçilen planı ve barındırılan sayfalarında girdiğiniz ödeme bilgilerini alır; tam kart bilgileri Mizan sunucularına ulaşmaz.",
+                "- RevenueCat, Apple App Store ve Google Play: uygulama içi satın alma etkinse satın alma kimliklerini, abonelik durumunu, yenileme, iptal ve iadeleri işler. RevenueCat cihazlar arası erişimi eşitlemek için Mizan hesap kimliğini kullanır; Apple ve Google mağaza ödeme bilgilerini kendi politikalarına göre işler.",
+                "- Netlify, Render ve Neon: Netlify genel web sitesini, Render API'yi barındırır; Neon ise API'nin kullandığı PostgreSQL veritabanını sağlar.",
                 "- Google (Google ile Oturum Açma): yalnızca Google ile oturum açmayı seçerseniz.",
+                "- Tarayıcı veya işletim sistemi sağlayıcınız: tarayıcıda sesli girişi seçerseniz tarayıcının konuşma tanıma hizmeti sesi işleyebilir. Cihaz bildirimleri uygulama tarafından yerel olarak planlanır; kod Mizan'a uzaktan bildirim belirteci kaydetmez.",
                 "Verileri reklamverenlerle, veri simsarlarıyla veya pazarlama amaçlı “iş ortaklarıyla” paylaşmayız. Verilerinizi işleyen yeni bir sağlayıcı eklersek önce bu politika güncellenir.",
             ]),
             ("Saklama, güvenlik ve tutma süresi", [
                 "Veriler; uygulama, bu web sitesi ve sunucularımız arasında TLS ile aktarım sırasında şifrelenir. Saklanan veriler erişim denetimleriyle korunur ve barındırma sağlayıcımız tarafından beklemede şifrelenir.",
-                "Verilerinizi hesabınız var olduğu sürece tutarız. Hesabınızı sildiğinizde hesap kaydınız ve içindeki tüm finansal veriler 30 gün içinde üretim veritabanımızdan kalıcı olarak silinir; şifreli yedekler sonraki 30 gün içinde üzerine yazılır. Sizi tanımlayamayacak toplu, anonim kullanım sayıları tutulabilir.",
+                "Sunucudaki hesap ve finans kayıtlarını hesabınız var olduğu sürece tutarız. Doğrulanmış hesap silme işlemi başarıyla tamamlandığında hesap ve ilişkili kayıtlar üretim veritabanından silinir. Ödeme sağlayıcıları, uygulama mağazaları, altyapı günlükleri ve destek yazışmaları; kendi politikaları kapsamında veya güvenlik, dolandırıcılığı önleme, muhasebe ya da yasal yükümlülükler için ayrıca tutulabilir.",
+                "Cihazınızdaki yerel veriler; uygulamanın silme veya sıfırlama denetimleriyle temizlenene, uygulama depolamasını temizleyene ya da uygulamayı kaldırana kadar cihazda kalır. Yalnızca oturumu kapatmak yerel finans veya sohbet verilerini silmez.",
                 "Veriler, ikamet ettiğiniz ülkenin dışındaki sunucularda saklanabilir ve işlenebilir. Gerekli olduğunda bu tür aktarımlar için standart sözleşmesel korumalar kullanırız.",
             ]),
             ("Haklarınız ve seçenekleriniz", [
-                "- Dışa aktarma: tüm verilerinizi istediğiniz zaman Ayarlar > Veri > Dışa aktar (PDF, Excel veya CSV) yoluyla dışa aktarabilirsiniz.",
-                "- Silme: hesabınızı ve içindeki her şeyi Ayarlar > Hesap > Hesabı sil yoluyla silebilirsiniz. Ayrıntılar için {delete_link} sayfasına bakın.",
+                "- Dışa aktarma: finansal kayıtlarınızı Ayarlar > Veri > Dışa aktar (PDF, Excel veya CSV) yoluyla dışa aktarabilirsiniz.",
+                "- Silme: oturum açan kullanıcılar sunucu hesabını ve ilişkili kayıtları Ayarlar > Hesap > Hesabı sil yoluyla silebilir. Genel {delete_link} sayfası da web üzerinden silme yolu ve destek iletişimi sunar. Faturalandırmanın etkin kalmaması için hesabınızda görünen sağlayıcıdaki aboneliği silmeden önce iptal edin.",
                 "- Düzeltme: girdiğiniz her veriyi doğrudan uygulamada düzenleyebilirsiniz.",
                 "- Erişim, taşınabilirlik, itiraz ve şikâyet: yaşadığınız yere bağlı olarak (örneğin GDPR, KVKK veya benzeri yasalar kapsamında) ek haklarınız olabilir. Bunlardan herhangi birini kullanmak için {email} adresine yazın; 30 gün içinde yanıt veririz.",
                 "Uygulamanın büyük bölümünü yapay zekâ koçu olmadan kullanabilirsiniz. Yapay zekâ özellikleri yalnızca siz istediğinizde çalışır.",
@@ -128,7 +134,7 @@ TR = {
                 "Uygulama geliştikçe bu politikayı güncelleyebiliriz. Önemli değişiklikler yürürlüğe girmeden önce uygulamada duyurulur. Üstteki tarih geçerli sürümü gösterir.",
             ]),
             ("İletişim", [
-                "Sorular, talepler ve şikâyetler: {email}.",
+                "Mizan bu politikanın kapsadığı hizmettir. Gizlilik soruları, silme talepleri ve şikâyetler: {email}.",
             ]),
         ],
     },
@@ -190,15 +196,15 @@ TR = {
         "h1": "Hesabınızı silin", "updated": "Son güncelleme: {date}",
         "intro": "Mizan hesabınızı ve içindeki tüm finansal verileri istediğiniz zaman silebilirsiniz. Bunun için bizimle iletişime geçmeniz gerekmez.",
         "in_app_h": "Uygulama içinden",
-        "steps": ["Mizan'ı açın ve oturum açın.", "Ayarlar > Hesap > Hesabı sil yolunu izleyin.", "Uyarıyı okuyun, ardından parolanızla (veya Google oturumunuzla) onaylayın.", "Hesabınız hemen kapatılır ve tüm cihazlarda oturumunuz sonlandırılır."],
+        "steps": ["Mizan'ı açın ve oturum açın.", "Ayarlar > Hesap > Hesabı sil yolunu izleyin.", "Uyarıyı okuyup kalıcı silmeyi onaylayın.", "İstek başarılı olduğunda hesap ve ilişkili kayıtlar üretim veritabanından silinir ve uygulama oturumunuzu kapatır."],
         "email_h": "Uygulamaya erişemiyorsanız",
-        "email_p": "Hesabınıza kayıtlı e-posta adresinden {email} adresine “Hesabımı sil” konulu bir e-posta gönderin. Talebi o adrese yanıt vererek doğrular ve 7 gün içinde işleme alırız.",
+        "email_p": "Hesabınıza kayıtlı e-posta adresinden {email} adresine “Hesabımı sil” konulu bir e-posta gönderin. Talebi doğrulamak ve işlemek için aynı adrese yanıt veririz.",
         "what_h": "Neler silinir",
-        "what": ["Hesabınız (ad, e-posta, oturum açma bilgileri).", "Tüm finansal veriler: işlemler, bütçeler, tasarruf hedefleri, hesaplar, varlıklar, kategoriler, notlar ve fiş görüntüleri.", "Yapay zekâ koçu geçmişi ile üretilen değerlendirme ve tahminler.", "Bizdeki abonelik kaydınız. Hesabı silmek faturalandırmayı kendiliğinden durdurmaz: bu siteden alınan aboneliği önce {account_link} üzerinden, mağazadan alınan aboneliği ise App Store veya Google Play üzerinden iptal edin."],
+        "what": ["Sunucu hesabınız (ad, e-posta ve oturum açma kimlik bilgisi kaydı).", "Hesapla ilişkili sunucu finansal verileri: işlemler, bütçeler, tasarruf hedefleri, hesaplar, varlıklar, yinelenen abonelikler ve notlar.", "Hesapla ilişkili sunucu yapay zekâ kullanım kayıtları. Uygulama, başarılı uygulama içi silmeden sonra yerel finans, işlem kutusu ve yapay zekâ sohbet durumunu da temizler.", "Bizdeki abonelik kaydınız. Ödeme sağlayıcının faturalandırmaya devam etmemesi için silmeden önce web aboneliğini {account_link} üzerinden veya mağaza aboneliğini App Store ya da Google Play üzerinden iptal edin."],
         "kept_h": "Neler tutulur ve ne kadar süreyle",
-        "kept": ["Şifreli yedekler: silinen veriler üretim veritabanından kaldırıldıktan sonra en fazla 30 gün yedeklerde kalabilir, ardından üzerine yazılır.", "Apple, Google ve RevenueCat'in kendi politikaları kapsamında muhasebe ve dolandırıcılık önleme için gerektiği ölçüde tuttuğu satın alma kayıtları. Bunlar girdiğiniz hiçbir finansal veriyi içermez.", "Bize gönderdiğiniz destek e-postaları; kayıt amacıyla en fazla 12 ay tutulur.", "Sizi tanımlayamayacak anonim toplu istatistikler."],
+        "kept": ["Paddle, Stripe, Apple, Google veya RevenueCat'in kendi politikaları ve yasal yükümlülükleri kapsamında tuttuğu ödeme, vergi, fatura ve satın alma kayıtları.", "Güvenlik ve altyapı günlükleri, yedek kopyalar ve destek yazışmaları sağlayıcının olağan saklama süresi boyunca veya güvenlik, dolandırıcılığı önleme, muhasebe, uyuşmazlık ya da yasal yükümlülük için gerektiği sürece kalabilir.", "Artık sizi tanımlayamayacak biçimde geri döndürülemez şekilde anonimleştirilmiş veriler tutulabilir."],
         "time_h": "Ne kadar sürer",
-        "time_p": "Uygulama içi silme anında gerçekleşir ve geri alınamaz; veriler 30 gün içinde üretim veritabanımızdan, sonraki 30 gün içinde de yedeklerden kaldırılır. E-posta talepleri doğrulamadan sonra 7 gün içinde işlenir.",
+        "time_p": "Doğrulanmış uygulama içi veya web silme isteği başarılı olduğunda hesap ve ilişkili kayıtlar üretim veritabanından kaldırılır. E-posta talepleri işlenmeden önce doğrulanır. Ayrı sağlayıcı kayıtları ve kalan altyapı kopyaları yukarıdaki saklama kurallarına tabidir.",
         "web": {
             "h": "Hesabınızı şimdi silin",
             "p": "Oturumunuz açık olduğu için hesabınızı buradan silebilirsiniz. Bu işlem kalıcıdır ve geri alınamaz.",
@@ -265,6 +271,7 @@ TR = {
             "alt": "Zaten hesabınız var mı?",
             "alt_link": "Oturum açın",
             "trial_note": "Her yeni hesap 7 günlük ücretsiz denemeyle başlar. Denemek için kart gerekmez.",
+            "consent": "Hesap oluşturarak en az 18 yaşında olduğunuzu ve {terms_link} ile {privacy_link}'nı kabul ettiğinizi onaylarsınız.",
         },
         "continue_plan": "Sonraki adım: {plan} planı için ödeme, {period}.",
         "errors": {
@@ -272,6 +279,7 @@ TR = {
             "password": "Parolanız en az 6 karakter olmalıdır.",
             "network": "Mizan'a ulaşamadık. Bağlantınızı kontrol edip yeniden deneyin.",
             "retry": "Yeniden dene",
+            "account_exists_with_password": "Bu e-posta ile kayıtlı bir hesap zaten var. Lütfen e-posta adresiniz ve şifrenizle giriş yapın.",
         },
     },
     "account": {
@@ -373,3 +381,6 @@ TR = {
     },
     "redirect": {"title": "Mizan", "p": "Mizan'a yönlendiriliyorsunuz. Bir dil seçin:"},
 }
+
+TR["privacy"] = TR_PRIVACY
+TR["terms"] = TR_TERMS

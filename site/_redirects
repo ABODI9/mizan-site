@@ -3,9 +3,9 @@
 / /ar/ 200! Cookie=mizan_ar
 / /tr/ 200! Cookie=mizan_tr
 / /en/ 200!
-/privacy/ /ar/privacy/ 200! Cookie=mizan_ar
-/privacy/ /tr/privacy/ 200! Cookie=mizan_tr
-/privacy/ /en/privacy/ 200!
+/privacy-policy/ /ar/privacy-policy/ 200! Cookie=mizan_ar
+/privacy-policy/ /tr/privacy-policy/ 200! Cookie=mizan_tr
+/privacy-policy/ /en/privacy-policy/ 200!
 /terms/ /ar/terms/ 200! Cookie=mizan_ar
 /terms/ /tr/terms/ 200! Cookie=mizan_tr
 /terms/ /en/terms/ 200!
@@ -18,6 +18,9 @@
 /signup/ /ar/signup/ 200! Cookie=mizan_ar
 /signup/ /tr/signup/ 200! Cookie=mizan_tr
 /signup/ /en/signup/ 200!
+/privacy/ /ar/privacy/ 200! Cookie=mizan_ar
+/privacy/ /tr/privacy/ 200! Cookie=mizan_tr
+/privacy/ /en/privacy/ 200!
 /account/ /ar/account/ 200! Cookie=mizan_ar
 /account/ /tr/account/ 200! Cookie=mizan_tr
 /account/ /en/account/ 200!

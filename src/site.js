@@ -645,6 +645,7 @@
         .catch(function (e) {
           // A 401 here means wrong credentials, not an expired session, so it is
           // shown in place and never bounced back to this same page.
+          if (e.code === 'ACCOUNT_EXISTS_WITH_PASSWORD') { fail(T.auth.errors.account_exists_with_password); return; }
           fail(e.status === 0 ? T.auth.errors.network : (e.message || T.auth.errors.network));
         });
     });
