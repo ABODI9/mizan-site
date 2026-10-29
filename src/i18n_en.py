@@ -2,7 +2,7 @@ from privacy_content import EN_PRIVACY
 from terms_content import EN_TERMS
 
 EN = {
-    "code": "en", "dir": "ltr", "native": "English", "locale": "en_US", "date": "22 October 2026",
+    "code": "en", "dir": "ltr", "native": "English", "locale": "en_US", "date": "29 October 2026",
     "nav": {"features": "Features", "ai": "AI coach", "pricing": "Pricing", "support": "Support", "download": "Download", "menu": "Menu", "home": "Mizan home", "signin": "Sign in", "account": "Account"},
     "switcher": "Language", "theme": "Switch between dark and light theme", "skip": "Skip to content",
     "footer": {
@@ -132,12 +132,14 @@ EN = {
         "intro": "You can delete your Mizan account, and all the financial data in it, at any time. You do not need to contact us to do so.",
         "in_app_h": "From inside the app",
         "steps": ["Open Mizan and sign in.", "Go to Settings > Account > Delete account.", "Read the warning and confirm permanent deletion.", "When the request succeeds, the account and its related records are deleted from the production database and the app signs you out."],
+        "web_h": "From this website",
+        "web_p": "On the website: sign in at mizan-ai.org, open Account, choose Delete account, and confirm.",
         "email_h": "If you cannot access the app",
         "email_p": "Send an email to {email} from the email address registered to your account, with the subject “Delete my account”. We will reply to that address to verify and process the request.",
         "what_h": "What is deleted",
         "what": ["Your server account (name, email and sign-in credential record).", "Server financial data associated with the account: transactions, budgets, savings goals, accounts, assets, recurring subscriptions and notes.", "Server-side AI usage records associated with the account. The app also clears its locally persisted financial, inbox and AI-chat state after successful in-app deletion.", "Your subscription record on our side. Before deleting, cancel a website subscription from your {account_link}, or a store subscription in the App Store or Google Play, so the payment provider does not continue billing."],
         "kept_h": "What is retained, and for how long",
-        "kept": ["Payment, tax, invoice and purchase records held by Paddle, Stripe, Apple, Google or RevenueCat under their policies and legal obligations.", "Security and infrastructure logs, backup copies and support correspondence may remain for the provider's normal retention period or while needed for security, fraud prevention, accounting, dispute handling or legal obligations.", "Data that has been irreversibly anonymized so it can no longer identify you may be retained."],
+        "kept": ["Your account and financial data are removed from our live database immediately, and from backups within 30 days.", "Server logs (user IDs and error messages, never your financial entries) are deleted within 30 days.", "AI requests already sent to OpenAI may be kept by OpenAI for up to 30 days for abuse monitoring.", "Billing and tax records are kept by our payment providers (Paddle, Stripe for earlier web subscriptions, and the app store you purchased through) for as long as tax and accounting laws require.", "Support emails are kept for up to 2 years after the conversation ends.", "Email deletion requests are processed within 30 days after we verify them."],
         "time_h": "How long it takes",
         "time_p": "Authenticated in-app or website deletion removes the account and related records from the production database when the request succeeds. Email requests require verification before processing. Separate provider records and residual infrastructure copies follow the retention rules described above.",
         "web": {
@@ -158,7 +160,7 @@ EN = {
             "done_p": "Your Mizan account and the financial data in it have been deleted. Thank you for having used Mizan.",
             "done_home": "Back to the home page",
         },
-        "export_tip": "Want to keep a copy first? Export your data from Settings > Data > Export before deleting.",
+        "export_tip": "Want to keep a copy first? Export your data from Settings > Export before deleting.",
     },
     "support": {
         "title": "Support — Mizan",

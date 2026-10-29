@@ -2,7 +2,7 @@ from privacy_content import TR_PRIVACY
 from terms_content import TR_TERMS
 
 TR = {
-    "code": "tr", "dir": "ltr", "native": "Türkçe", "locale": "tr_TR", "date": "22 Ekim 2026",
+    "code": "tr", "dir": "ltr", "native": "Türkçe", "locale": "tr_TR", "date": "29 Ekim 2026",
     "nav": {"features": "Özellikler", "ai": "Yapay zekâ koçu", "pricing": "Fiyatlar", "support": "Destek", "download": "İndir", "menu": "Menü", "home": "Mizan ana sayfa", "signin": "Oturum aç", "account": "Hesabım"},
     "switcher": "Dil", "theme": "Koyu ve açık tema arasında geçiş yap", "skip": "İçeriğe geç",
     "footer": {
@@ -132,12 +132,14 @@ TR = {
         "intro": "Mizan hesabınızı ve içindeki tüm finansal verileri istediğiniz zaman silebilirsiniz. Bunun için bizimle iletişime geçmeniz gerekmez.",
         "in_app_h": "Uygulama içinden",
         "steps": ["Mizan'ı açın ve oturum açın.", "Ayarlar > Hesap > Hesabı sil yolunu izleyin.", "Uyarıyı okuyup kalıcı silmeyi onaylayın.", "İstek başarılı olduğunda hesap ve ilişkili kayıtlar üretim veritabanından silinir ve uygulama oturumunuzu kapatır."],
+        "web_h": "Bu web sitesinden",
+        "web_p": "Web sitesinde: mizan-ai.org adresinde oturum açın, Hesap sayfasını açın, Hesabı sil seçeneğini seçin ve onaylayın.",
         "email_h": "Uygulamaya erişemiyorsanız",
         "email_p": "Hesabınıza kayıtlı e-posta adresinden {email} adresine “Hesabımı sil” konulu bir e-posta gönderin. Talebi doğrulamak ve işlemek için aynı adrese yanıt veririz.",
         "what_h": "Neler silinir",
         "what": ["Sunucu hesabınız (ad, e-posta ve oturum açma kimlik bilgisi kaydı).", "Hesapla ilişkili sunucu finansal verileri: işlemler, bütçeler, tasarruf hedefleri, hesaplar, varlıklar, yinelenen abonelikler ve notlar.", "Hesapla ilişkili sunucu yapay zekâ kullanım kayıtları. Uygulama, başarılı uygulama içi silmeden sonra yerel finans, işlem kutusu ve yapay zekâ sohbet durumunu da temizler.", "Bizdeki abonelik kaydınız. Ödeme sağlayıcının faturalandırmaya devam etmemesi için silmeden önce web aboneliğini {account_link} üzerinden veya mağaza aboneliğini App Store ya da Google Play üzerinden iptal edin."],
         "kept_h": "Neler tutulur ve ne kadar süreyle",
-        "kept": ["Paddle, Stripe, Apple, Google veya RevenueCat'in kendi politikaları ve yasal yükümlülükleri kapsamında tuttuğu ödeme, vergi, fatura ve satın alma kayıtları.", "Güvenlik ve altyapı günlükleri, yedek kopyalar ve destek yazışmaları sağlayıcının olağan saklama süresi boyunca veya güvenlik, dolandırıcılığı önleme, muhasebe, uyuşmazlık ya da yasal yükümlülük için gerektiği sürece kalabilir.", "Artık sizi tanımlayamayacak biçimde geri döndürülemez şekilde anonimleştirilmiş veriler tutulabilir."],
+        "kept": ["Hesap ve finansal verileriniz canlı veritabanımızdan hemen, yedeklerden ise 30 gün içinde silinir.", "Sunucu kayıtları (kullanıcı kimlikleri ve hata mesajları; finansal kayıtlarınız asla yer almaz) 30 gün içinde silinir.", "OpenAI'ye zaten gönderilmiş yapay zekâ istekleri, kötüye kullanımı izlemek amacıyla OpenAI tarafından 30 güne kadar saklanabilir.", "Fatura ve vergi kayıtları, ödeme sağlayıcılarımız (Paddle, eski web abonelikleri için Stripe ve satın alım yaptığınız uygulama mağazası) tarafından vergi ve muhasebe mevzuatının gerektirdiği süre boyunca saklanır.", "Destek e-postaları, yazışmanın sona ermesinden itibaren en fazla 2 yıl saklanır.", "E-posta ile yapılan silme talepleri, doğrulandıktan sonra 30 gün içinde işlenir."],
         "time_h": "Ne kadar sürer",
         "time_p": "Doğrulanmış uygulama içi veya web silme isteği başarılı olduğunda hesap ve ilişkili kayıtlar üretim veritabanından kaldırılır. E-posta talepleri işlenmeden önce doğrulanır. Ayrı sağlayıcı kayıtları ve kalan altyapı kopyaları yukarıdaki saklama kurallarına tabidir.",
         "web": {
@@ -158,7 +160,7 @@ TR = {
             "done_p": "Mizan hesabınız ve içindeki finansal veriler silindi. Mizan'ı kullandığınız için teşekkür ederiz.",
             "done_home": "Ana sayfaya dön",
         },
-        "export_tip": "Önce bir kopya saklamak ister misiniz? Silmeden önce Ayarlar > Veri > Dışa aktar yoluyla verilerinizi dışa aktarın.",
+        "export_tip": "Önce bir kopya saklamak ister misiniz? Silmeden önce Ayarlar > Dışa aktar yoluyla verilerinizi dışa aktarın.",
     },
     "support": {
         "title": "Destek — Mizan",

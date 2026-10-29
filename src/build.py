@@ -552,6 +552,7 @@ def delete_page(L):
              + delete_web_panel(L)
              + h2(d["in_app_h"]) + '<ol class="list-decimal space-y-2 ps-6">' + "".join(f"<li>{fill(s, L)}</li>" for s in d["steps"]) + "</ol>"
              + f'<p class="mt-4 rounded-xl border border-line bg-surface p-4 text-sm text-muted">{fill(d["export_tip"], L)}</p>'
+             + h2(d["web_h"]) + f"<p>{fill(d['web_p'], L)}</p>"
              + h2(d["email_h"]) + f"<p>{fill(d['email_p'], L)}</p>"
              + h2(d["what_h"]) + '<ul class="list-disc space-y-2 ps-6">' + "".join(f"<li>{fill(s, L)}</li>" for s in d["what"]) + "</ul>"
              + h2(d["kept_h"]) + '<ul class="list-disc space-y-2 ps-6">' + "".join(f"<li>{fill(s, L)}</li>" for s in d["kept"]) + "</ul>"
