@@ -789,7 +789,10 @@
         var dl = accRoot.querySelector('[data-usage]');
         var usage = p.usage || {};
         var limits = p.limits || {};
-        var keys = Object.keys(usage);
+        // Only counters that have a label are shown: a usage key the site does not
+        // name (a feature hidden for launch, or one newer than this build) stays out.
+        var labels = T.account.usage_labels || {};
+        var keys = Object.keys(usage).filter(function (k) { return !!labels[k]; });
         if (!keys.length) return;
         clear(dl);
         keys.forEach(function (k) {
@@ -797,7 +800,7 @@
           row.className = 'flex justify-between gap-4';
           var dt = document.createElement('dt');
           dt.className = 'text-muted';
-          dt.textContent = (T.account.usage_labels && T.account.usage_labels[k]) || k.replace(/_/g, ' ');
+          dt.textContent = labels[k];
           var dd = document.createElement('dd');
           dd.className = 'font-medium';
           var lim = limits[k];

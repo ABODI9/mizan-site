@@ -376,7 +376,7 @@ def section(id_, inner, cls=""):
     return f'<section id="{id_}" class="scroll-mt-20 {cls}"><div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">{inner}</div></section>'
 
 def home(L):
-    h = L["home"]; feat_icons = ["ledger", "budget", "goal", "subs", "report", "fx"]; ai_icons = ["chat", "camera", "week", "forecast", "alert", "wallet"]
+    h = L["home"]; feat_icons = ["ledger", "budget", "goal", "subs", "report", "fx"]; ai_icons = ["chat", "week", "forecast", "alert", "wallet"]
     hero = f'''<section class="relative overflow-hidden"><div class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-14 sm:px-6 sm:pt-20 md:grid-cols-2 md:pb-24">
 <div class="text-center md:text-start"><h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">{esc(h["h1"])}</h1>
 <p class="mx-auto mt-5 max-w-xl text-lg text-muted md:mx-0">{esc(h["sub"])}</p>
